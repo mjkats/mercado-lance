@@ -1,4 +1,4 @@
-package br.com.katsilis.mercadolance.demo;
+package br.com.katsilis.mercadolance;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
