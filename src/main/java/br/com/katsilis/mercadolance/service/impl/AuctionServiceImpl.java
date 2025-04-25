@@ -1,7 +1,7 @@
 package br.com.katsilis.mercadolance.service.impl;
 
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
-import br.com.katsilis.mercadolance.exception.handler.DatabaseException;
+import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.model.Auction;
 import br.com.katsilis.mercadolance.repository.AuctionRepository;
 import br.com.katsilis.mercadolance.service.AuctionService;
@@ -26,7 +26,7 @@ public class AuctionServiceImpl implements AuctionService {
         try {
             return auctionRepository.findAll();
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "findAll");
+            throw new DatabaseException(e.getMessage(), "Auction findAll");
         }
     }
 
@@ -35,17 +35,17 @@ public class AuctionServiceImpl implements AuctionService {
 
         try {
             if (productName != null && status != null)
-                return auctionRepository.findByStatusAndProductNamePaginated(status, productName, pageable);
+                return auctionRepository.findByStatusAndProduct_NameContainingIgnoreCase(status, productName, pageable);
 
             if (productName != null)
-                return auctionRepository.findByProductNamePaginated(productName, pageable);
+                return auctionRepository.findByProduct_NameContainingIgnoreCase(productName, pageable);
 
             if (status != null)
-                return auctionRepository.findByStatusPaginated(status, pageable);
+                return auctionRepository.findByStatus(status, pageable);
 
-            return auctionRepository.findPaginated(pageable);
+            return auctionRepository.findAll(pageable);
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "getAuctions");
+            throw new DatabaseException(e.getMessage(), "Auction getAuctions");
         }
     }
 
@@ -54,7 +54,7 @@ public class AuctionServiceImpl implements AuctionService {
         try {
             return auctionRepository.findByStatus(status);
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "findByStatus");
+            throw new DatabaseException(e.getMessage(), "Auction findByStatus");
         }
     }
 
@@ -64,7 +64,7 @@ public class AuctionServiceImpl implements AuctionService {
             return auctionRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Auction with id " + id + " not found"));
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "findById");
+            throw new DatabaseException(e.getMessage(), "Auction findById");
         }
     }
 
@@ -73,7 +73,7 @@ public class AuctionServiceImpl implements AuctionService {
         try {
             return auctionRepository.save(auction);
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "save");
+            throw new DatabaseException(e.getMessage(), "Auction save");
         }
     }
 
@@ -85,7 +85,7 @@ public class AuctionServiceImpl implements AuctionService {
         try {
             auctionRepository.deleteById(id);
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "delete");
+            throw new DatabaseException(e.getMessage(), "Auction delete");
         }
     }
 
@@ -103,7 +103,7 @@ public class AuctionServiceImpl implements AuctionService {
         try {
             return auctionRepository.save(existing);
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "update");
+            throw new DatabaseException(e.getMessage(), "Auction update");
         }
     }
 }

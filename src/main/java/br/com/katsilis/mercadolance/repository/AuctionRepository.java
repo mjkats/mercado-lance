@@ -11,8 +11,7 @@ import java.util.List;
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     List<Auction> findByStatus(AuctionStatus status);
-    Page<Auction> findByStatusAndProductNamePaginated(AuctionStatus status, String productName, Pageable pageable);
-    Page<Auction> findByStatusPaginated(AuctionStatus status, Pageable pageable);
-    Page<Auction> findByProductNamePaginated(String productName, Pageable pageable);
-    Page<Auction> findPaginated(Pageable pageable);
+    Page<Auction> findByStatusAndProduct_NameContainingIgnoreCase(AuctionStatus status, String productName, Pageable pageable);
+    Page<Auction> findByStatus(AuctionStatus status, Pageable pageable);
+    Page<Auction> findByProduct_NameContainingIgnoreCase(String productName, Pageable pageable);
 }

@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface AuctionService {
 
-    public List<Auction> findAll();
-    public Page<Auction> getAuctions(AuctionStatus status, String productName, Pageable pageable);
-    public List<Auction> findByStatus(AuctionStatus status);
-    public Auction findById(Long id);
-    public Auction save(Auction auction);
-    public void delete(Long id);
-    public Auction update(Long id, Auction auction);
+    List<Auction> findAll();
+    Page<Auction> getAuctions(AuctionStatus status, String productName, Pageable pageable);
+    List<Auction> findByStatus(AuctionStatus status);
+    Auction findById(Long id);
+    Auction save(Auction auction);
+    void delete(Long id);
+    Auction update(Long id, Auction auction);
 }

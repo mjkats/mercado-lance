@@ -1,4 +1,4 @@
-package br.com.katsilis.mercadolance.exception.handler;
+package br.com.katsilis.mercadolance.exception;
 
 import lombok.Getter;
 
