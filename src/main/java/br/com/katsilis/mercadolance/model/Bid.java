@@ -7,13 +7,20 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
 @Entity
 public class Bid {
+
+    public Bid(User user, Auction auction, double amount) {
+        this.user = user;
+        this.auction = auction;
+        this.amount = amount;
+        this.bidTime = LocalDateTime.now();
+        this.status = BidStatus.ACCEPTED;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -33,5 +33,6 @@ public class Notification {
     @Column(nullable = false)
     private NotificationStatus status;
 
-    // Getters e setters
+    @Column(nullable = false)
+    private boolean read;
 }

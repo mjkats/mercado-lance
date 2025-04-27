@@ -13,6 +13,7 @@ public interface AuctionService {
     Page<Auction> getAuctions(AuctionStatus status, String productName, Pageable pageable);
     List<Auction> findByStatus(AuctionStatus status);
     Auction findById(Long id);
+    Auction findByIdAndStatus(Long id, AuctionStatus status);
     Auction save(Auction auction);
     void delete(Long id);
     Auction update(Long id, Auction auction);

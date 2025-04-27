@@ -69,6 +69,16 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
+    public Auction findByIdAndStatus(Long id, AuctionStatus status) {
+        try {
+            return auctionRepository.findByIdAndStatus(id, status).orElseThrow(() ->
+                new EntityNotFoundException("Auction with id " + id + " not found"));
+        } catch (RuntimeException e) {
+            throw new DatabaseException(e.getMessage(), "Auction findActiveById");
+        }
+    }
+
+    @Override
     public Auction save(Auction auction) {
         try {
             return auctionRepository.save(auction);
