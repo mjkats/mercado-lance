@@ -1,3 +1,6 @@
+server:
+  port: ${PORT:8080}
+
 spring:
   application:
     name: Mercado Lance
@@ -8,9 +11,8 @@ spring:
     aws:
       region:
         static: ${REGION}
-      credentials:
-        profile:
-          name: default
+      stack:
+        auto: false
 
   datasource:
     url: ${POSTGRES_URL}
@@ -36,5 +38,8 @@ spring:
 management:
   endpoints:
     web:
+      base-path: /
+      path-mapping:
+        health: health
       exposure:
         include: health
