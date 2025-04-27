@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: Mercado Lance
+  servlet:
+    context-path: /mercado-lance
+
+  cloud:
+    aws:
+      region:
+        static: ${REGION}
+      credentials:
+        profile:
+          name: default
+
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_JWT_ISSUER}
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

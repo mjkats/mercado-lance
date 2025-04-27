@@ -1,7 +1,6 @@
 package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.BidDto;
-import br.com.katsilis.mercadolance.enums.BidStatus;
 import br.com.katsilis.mercadolance.model.Bid;
 import br.com.katsilis.mercadolance.service.BidService;
 import jakarta.validation.Valid;
@@ -33,11 +32,10 @@ public class BidController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<Bid>> getBids(@RequestParam(required = false) BidStatus status,
-                                             @RequestParam(required = false) Long auctionId,
+    public ResponseEntity<Page<Bid>> getBids(@RequestParam(required = false) Long auctionId,
                                              @RequestParam(required = false) Long userId,
                                              @PageableDefault(sort = "bidTime", direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
-        return ResponseEntity.ok(bidService.getBids(auctionId, userId, status, pageable));
+        return ResponseEntity.ok(bidService.getBids(auctionId, userId, pageable));
     }
 
     @GetMapping("/{id}")
