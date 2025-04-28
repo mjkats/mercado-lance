@@ -78,9 +78,9 @@ jobs:
 
       - name: Package application
         run: |
-          zip -r my-app.zip ./build/*.jar
+          zip -r mercado-lance.zip target/*.jar
 
       - name: Deploy to Elastic Beanstalk
         run: |
           aws elasticbeanstalk create-application-version --application-name Mercado Lance Service --version-label v${{ github.sha }} --source-bundle S3Bucket="elasticbeanstalk-us-east-1-337152444350",S3Key="mercado-lance-v${{ github.sha }}.zip"
-          aws elasticbeanstalk update-environment --application-name my-app --environment-name my-app-env --version-label v${{ github.sha }}
+          aws elasticbeanstalk update-environment --application-name Mercado Lance Service --environment-name MercadoLanceService-env --version-label v${{ github.sha }}
