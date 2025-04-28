@@ -1,0 +1,19 @@
+package br.com.katsilis.mercadolance.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+
+import java.util.Map;
+
+@Configuration
+public class RedisConfig {
+
+    @Bean
+    public RedisTemplate<String, Map<String, String>> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Map<String, String>> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+        return template;
+    }
+}
