@@ -2,6 +2,7 @@ package br.com.katsilis.mercadolance.dto.creation;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,6 +10,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class CreateBidDto {
 
     @NotNull(message = "User ID is required")

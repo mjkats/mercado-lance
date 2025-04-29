@@ -1,5 +1,6 @@
 package br.com.katsilis.mercadolance.model;
 
+import br.com.katsilis.mercadolance.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,8 +24,9 @@ public class PaymentInfo {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
     @Column(nullable = false)
     private double amount;

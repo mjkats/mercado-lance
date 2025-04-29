@@ -2,13 +2,13 @@ package br.com.katsilis.mercadolance.dto.creation;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
+@EqualsAndHashCode
 public class CreateUserDto {
 
     @NotBlank(message = "Auth0 ID is required.")

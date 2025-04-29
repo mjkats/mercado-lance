@@ -1,12 +1,10 @@
 package br.com.katsilis.mercadolance.model;
 
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -54,7 +52,4 @@ public class Auction {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuctionStatus status;
-
-    @OneToMany(mappedBy = "auction")
-    private List<Bid> bids;
 }

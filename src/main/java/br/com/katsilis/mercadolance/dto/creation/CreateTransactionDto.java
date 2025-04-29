@@ -2,13 +2,13 @@ package br.com.katsilis.mercadolance.dto.creation;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @Setter
 @Getter
+@ToString
+@EqualsAndHashCode
 public class CreateTransactionDto {
 
     @NotNull(message = "Winning bid ID is required.")

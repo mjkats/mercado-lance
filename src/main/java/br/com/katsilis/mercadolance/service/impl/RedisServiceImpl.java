@@ -22,11 +22,17 @@ public class RedisServiceImpl implements RedisService {
     private final StringRedisTemplate redisTemplate;
     private static final Duration TTL = Duration.ofSeconds(6);
 
+    @Override
     public void saveBidWithTtl(CreateBidDto bid) {
         String key = buildBidKey(bid.getAuctionId(), bid.getUserId());
         Map<String, String> value = buildBidValue(bid.getAmount(), bid.getAuctionId(), bid.getUserId());
+
+        log.info("Saving bid with TTL, key: {}, value: {}", key, value);
+
         redisTemplate.opsForHash().putAll(key, value);
         redisTemplate.expire(key, TTL);
+
+        log.info("Bid saved with TTL, key: {}", key);
     }
 
     private String buildBidKey(Long auctionId, Long userId) {
@@ -42,16 +48,27 @@ public class RedisServiceImpl implements RedisService {
         );
     }
 
+    @Override
     public Set<String> getAuctionBidKeys(Long auctionId) {
-        return redisTemplate.keys("auction:" + auctionId + ":pendingBid:user:*");
+        log.info("Fetching bid keys for auctionId: {}", auctionId);
+
+        Set<String> keys = redisTemplate.keys("auction:" + auctionId + ":pendingBid:user:*");
+
+        log.info("Fetched bid keys for auctionId {}: {}", auctionId, keys);
+
+        return keys;
     }
 
     @Override
     public List<Map<Object, Object>> getAuctionBidValues(Long auctionId) {
+        log.info("Fetching bid values for auctionId: {}", auctionId);
+
         Set<String> keys = redisTemplate.keys("auction:" + auctionId + ":pendingBid:user:*");
 
-        if (keys == null || keys.isEmpty())
+        if (keys == null || keys.isEmpty()) {
+            log.info("No bids found for auctionId: {}", auctionId);
             return List.of();
+        }
 
         List<Map<Object, Object>> allBids = new ArrayList<>();
         for (String key : keys) {
@@ -61,14 +78,21 @@ public class RedisServiceImpl implements RedisService {
             }
         }
 
+        log.info("Fetched bids for auctionId {}: {}", auctionId, allBids);
+
         return allBids;
     }
 
+    @Override
     public void deleteBid(Long auctionId, Long userId) {
         try {
-            redisTemplate.delete(buildBidKey(auctionId, userId));
+            String key = buildBidKey(auctionId, userId);
+            log.info("Deleting bid with key: {}", key);
+
+            redisTemplate.delete(key);
+            log.info("Successfully deleted bid with key: {}", key);
         } catch (Exception e) {
-            log.error("Cache deletion error: ", e);
+            log.error("Cache deletion error for auctionId: {} and userId: {}, resuming application flow: ", auctionId, userId, e);
         }
     }
 }

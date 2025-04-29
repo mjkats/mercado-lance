@@ -1,8 +1,13 @@
 package br.com.katsilis.mercadolance.service.impl;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
+import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
+import br.com.katsilis.mercadolance.dto.response.ProductResponseDto;
+import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
+import br.com.katsilis.mercadolance.exception.illegalargument.AuctionIllegalArgumentException;
+import br.com.katsilis.mercadolance.exception.notfound.AuctionNotFoundException;
 import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.model.Auction;
 import br.com.katsilis.mercadolance.model.Product;
@@ -11,7 +16,6 @@ import br.com.katsilis.mercadolance.repository.AuctionRepository;
 import br.com.katsilis.mercadolance.service.AuctionService;
 import br.com.katsilis.mercadolance.service.ProductService;
 import br.com.katsilis.mercadolance.service.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,144 +35,233 @@ public class AuctionServiceImpl implements AuctionService {
     private final UserService userService;
 
     @Override
-    public List<Auction> findAll() {
+    public List<AuctionResponseDto> findAll() {
+        log.info("Fetching all auctions");
+
         try {
-            return auctionRepository.findAll();
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction findAll");
+            List<Auction> auctions = auctionRepository.findAll();
+            log.info("Fetched auctions from database: {}", auctions);
+
+            return auctions.stream().map(this::auctionToResponseDto).toList();
+        } catch (Exception e) {
+            throw new DatabaseException("Error while fetching all auctions", e);
         }
     }
 
     @Override
-    public Page<Auction> getAuctions(AuctionStatus status, String productName, Pageable pageable) {
+    public Page<AuctionResponseDto> getAuctions(AuctionStatus status, String productName, Pageable pageable) {
+        log.info("Called getAuctions with status={} and productName={}", status, productName);
 
         try {
-            if (productName != null && status != null)
-                return auctionRepository.findByStatusAndProduct_NameContainingIgnoreCase(status, productName, pageable);
+            Page<AuctionResponseDto> result;
 
-            if (productName != null)
-                return auctionRepository.findByProduct_NameContainingIgnoreCase(productName, pageable);
+            if (productName != null && status != null) {
+                result = auctionRepository.findByStatusAndProduct_NameContainingIgnoreCase(status, productName, pageable)
+                    .map(this::auctionToResponseDto);
+            } else if (productName != null) {
+                result = auctionRepository.findByProduct_NameContainingIgnoreCase(productName, pageable)
+                    .map(this::auctionToResponseDto);
+            } else if (status != null) {
+                result = auctionRepository.findByStatus(status, pageable)
+                    .map(this::auctionToResponseDto);
+            } else {
+                result = auctionRepository.findAll(pageable).map(this::auctionToResponseDto);
+            }
 
-            if (status != null)
-                return auctionRepository.findByStatus(status, pageable);
+            log.info("Returning getAuctions result: {}", result.getContent());
+            return result;
 
-            return auctionRepository.findAll(pageable);
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction getAuctions");
+        } catch (Exception e) {
+            throw new DatabaseException("Error while searching for auctions with filters", e);
         }
     }
 
     @Override
-    public List<Auction> findByStatus(AuctionStatus status) {
+    public List<AuctionResponseDto> findByStatus(AuctionStatus status) {
+        log.info("Called findByStatus with status={}", status);
+
         try {
-            return auctionRepository.findByStatus(status);
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction findByStatus");
+            List<Auction> auctions = auctionRepository.findByStatus(status);
+            List<AuctionResponseDto> response = auctions.stream().map(this::auctionToResponseDto).toList();
+            log.info("Returning findByStatus result: {}", response);
+            return response;
+        } catch (Exception e) {
+            throw new DatabaseException("Error while searching for auctions by status", e);
         }
     }
 
     @Override
-    public Auction findById(Long id) {
+    public AuctionResponseDto findById(Long id) {
+        log.info("Called findById with id={}", id);
+
         try {
-            return auctionRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Auction with id " + id + " not found"));
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction findById");
+            Auction auction = auctionRepository.findById(id)
+                .orElseThrow(() -> new AuctionNotFoundException("Auction with id " + id + " not found"));
+
+            AuctionResponseDto response = auctionToResponseDto(auction);
+            log.info("Returning findById result: {}", response);
+            return response;
+        } catch (AuctionNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException("Error while fetching auction with id " + id, e);
         }
     }
 
     @Override
-    public Auction findByIdAndStatus(Long id, AuctionStatus status) {
+    public AuctionResponseDto findByIdAndStatus(Long id, AuctionStatus status) {
+        log.info("Called findByIdAndStatus with id={} and status={}", id, status);
+
         try {
-            return auctionRepository.findByIdAndStatus(id, status).orElseThrow(() ->
-                new EntityNotFoundException("Auction with id " + id + " not found"));
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction findActiveById");
+            Auction auction = auctionRepository.findByIdAndStatus(id, status)
+                .orElseThrow(() -> new AuctionNotFoundException("Auction with id " + id + " not found"));
+
+            AuctionResponseDto response = auctionToResponseDto(auction);
+            log.info("Returning findByIdAndStatus result: {}", response);
+            return response;
+        } catch (AuctionNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException("Error while fetching auction with id " + id + " by id and status", e);
         }
     }
 
     @Override
-    public Auction create(CreateAuctionDto auction) {
-        LocalDateTime now = LocalDateTime.now();
-
-        if (auction.getEndTime().isBefore(now))
-            throw new IllegalArgumentException("Auction end time needs to be after current time");
-
-        Product product = productService.findById(auction.getProductId());
-        User creator = userService.findById(auction.getCreatorId());
-
-        Auction newAuction = Auction.builder()
-            .createdAt(now)
-            .startTime(now)
-            .title(auction.getTitle())
-            .description(auction.getDescription())
-            .startingPrice(auction.getStartingPrice())
-            .endTime(auction.getEndTime())
-            .product(product)
-            .status(AuctionStatus.ACTIVE)
-            .createdBy(creator)
-            .build();
+    public Auction findOriginalByIdAndStatus(Long id, AuctionStatus status) {
+        log.info("Called findOriginalByIdAndStatus with id={} and status={}", id, status);
 
         try {
-            return auctionRepository.save(newAuction);
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction create");
+            Auction auction = auctionRepository.findByIdAndStatus(id, status)
+                .orElseThrow(() -> new AuctionNotFoundException("Auction with id " + id + " not found"));
+
+            log.info("Returning findOriginalByIdAndStatus result: {}", auction);
+            return auction;
+        } catch (AuctionNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException("Error while fetching auction with id " + id + " by id and status", e);
+        }
+    }
+
+    @Override
+    public void create(CreateAuctionDto auction) {
+        log.info("Called create with auctionDto={}", auction);
+
+        if (auction.getEndTime().isBefore(LocalDateTime.now()))
+            throw new AuctionIllegalArgumentException("Auction end time needs to be after current time");
+
+        try {
+            Product product = productService.findOriginalById(auction.getProductId());
+            User creator = userService.findOriginalById(auction.getCreatorId());
+
+            Auction newAuction = Auction.builder()
+                .createdAt(LocalDateTime.now())
+                .startTime(LocalDateTime.now())
+                .title(auction.getTitle())
+                .description(auction.getDescription())
+                .startingPrice(auction.getStartingPrice())
+                .endTime(auction.getEndTime())
+                .product(product)
+                .status(AuctionStatus.ACTIVE)
+                .createdBy(creator)
+                .build();
+
+            auctionRepository.save(newAuction);
+            log.info("Finished create. Saved auction: {}", newAuction);
+        } catch (Exception e) {
+            throw new DatabaseException("Error while creating auction", e);
         }
     }
 
     @Override
     public void delete(Long id) {
-        if (!auctionRepository.existsById(id))
-            throw new EntityNotFoundException("Auction with id " + id + " not found");
+        log.info("Called delete with id={}", id);
 
         try {
+            if (!auctionRepository.existsById(id))
+                throw new AuctionNotFoundException("Auction with id " + id + " not found");
+
             auctionRepository.deleteById(id);
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction delete");
+            log.info("Finished delete. Auction with id {} deleted", id);
+        } catch (AuctionNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException("Error while deleting auction with id " + id, e);
         }
     }
 
     @Override
     public void update(Long id, UpdateAuctionDto updatedAuction) {
-        Auction existing = findById(id);
-        boolean hasUpdate = false;
+        log.info("Called update with id={} and updatedAuction={}", id, updatedAuction);
 
-        if (updatedAuction.getTitle() != null) {
-            existing.setTitle(updatedAuction.getTitle());
-            hasUpdate = true;
-        }
+        try {
+            Auction existing = auctionRepository.findById(id)
+                .orElseThrow(() -> new AuctionNotFoundException("Auction with id " + id + " not found"));
 
-        if (updatedAuction.getDescription() != null) {
-            existing.setDescription(updatedAuction.getDescription());
-            hasUpdate = true;
-        }
+            boolean hasUpdate = false;
 
-        if (updatedAuction.getEndTime() != null && updatedAuction.getEndTime().isAfter(existing.getEndTime())) {
-            existing.setEndTime(updatedAuction.getEndTime());
-            hasUpdate = true;
-        }
-
-        if (updatedAuction.getStatus() != null) {
-            existing.setStatus(updatedAuction.getStatus());
-            hasUpdate = true;
-        }
-
-        if (hasUpdate) {
-            existing.setUpdatedAt(LocalDateTime.now());
-
-            try {
-                auctionRepository.save(existing);
-                return;
-            } catch (RuntimeException e) {
-                throw new DatabaseException(e.getMessage(), "Auction update");
+            if (updatedAuction.getTitle() != null) {
+                existing.setTitle(updatedAuction.getTitle());
+                hasUpdate = true;
             }
-        }
 
-        throw new IllegalArgumentException("There are no updates to be made for auction id " + id + ".");
+            if (updatedAuction.getDescription() != null) {
+                existing.setDescription(updatedAuction.getDescription());
+                hasUpdate = true;
+            }
+
+            if (updatedAuction.getEndTime() != null && updatedAuction.getEndTime().isAfter(existing.getEndTime())) {
+                existing.setEndTime(updatedAuction.getEndTime());
+                hasUpdate = true;
+            }
+
+            if (updatedAuction.getStatus() != null) {
+                existing.setStatus(updatedAuction.getStatus());
+                hasUpdate = true;
+            }
+
+            if (!hasUpdate)
+                throw new AuctionIllegalArgumentException("There are no updates on the request for auction id " + id);
+
+            existing.setUpdatedAt(LocalDateTime.now());
+            auctionRepository.save(existing);
+            log.info("Finished update. Updated auction: {}", existing);
+
+        } catch (AuctionNotFoundException | AuctionIllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException("Error while updating Auction with id " + id, e);
+        }
     }
 
     @Override
     public List<Auction> findExpiredAuctions() {
-        return auctionRepository.findByStatusAndEndTimeBefore(AuctionStatus.ACTIVE, LocalDateTime.now());
+        log.info("Fetching expired auctions");
+
+        try {
+            List<Auction> expiredAuctions = auctionRepository.findByStatusAndEndTimeBefore(AuctionStatus.ACTIVE, LocalDateTime.now());
+            log.info("Found {} expired auctions", expiredAuctions.size());
+            return expiredAuctions;
+        } catch (Exception e) {
+            log.error("Error while fetching expired auctions", e);
+            throw new DatabaseException("Error while fetching expired auctions", e);
+        }
+    }
+
+    @Override
+    public AuctionResponseDto auctionToResponseDto(Auction auction) {
+        ProductResponseDto productResponseDto = productService.productToResponseDto(auction.getProduct());
+        UserResponseDto userResponseDto = userService.userToResponseDto(auction.getCreatedBy());
+
+        return new AuctionResponseDto(
+            auction.getTitle(),
+            auction.getDescription(),
+            productResponseDto,
+            userResponseDto,
+            auction.getStartingPrice(),
+            auction.getStartTime(),
+            auction.getEndTime(),
+            auction.getStatus()
+        );
     }
 }
