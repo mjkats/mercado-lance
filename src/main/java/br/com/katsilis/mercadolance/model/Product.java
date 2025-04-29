@@ -3,8 +3,6 @@ package br.com.katsilis.mercadolance.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -12,6 +10,7 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 @Entity
+@Builder
 public class Product {
 
     @Id
@@ -20,7 +19,4 @@ public class Product {
 
     @Column(nullable = false)
     private String name;
-
-    @OneToMany(mappedBy = "product")
-    private List<Auction> auctions;
 }

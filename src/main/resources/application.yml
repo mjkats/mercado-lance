@@ -35,6 +35,14 @@ spring:
     virtual:
       enabled: true
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format-sql: true
+
 management:
   endpoints:
     web:

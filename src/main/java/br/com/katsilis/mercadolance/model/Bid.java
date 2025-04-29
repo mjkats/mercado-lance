@@ -17,7 +17,7 @@ public class Bid {
         this.user = user;
         this.auction = auction;
         this.amount = amount;
-        this.bidTime = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     @Id
@@ -36,5 +36,5 @@ public class Bid {
     private double amount;
 
     @Column(nullable = false)
-    private LocalDateTime bidTime;
+    private LocalDateTime createdAt;
 }

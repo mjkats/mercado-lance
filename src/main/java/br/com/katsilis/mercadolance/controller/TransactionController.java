@@ -1,7 +1,9 @@
 package br.com.katsilis.mercadolance.controller;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateTransactionDto;
 import br.com.katsilis.mercadolance.model.Transaction;
 import br.com.katsilis.mercadolance.service.TransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +27,8 @@ public class TransactionController {
     }
 
     @PostMapping
-    public Transaction create(@RequestBody Transaction transaction) {
-        return transactionService.save(transaction);
-    }
-
-    @PutMapping("/{id}")
-    public Transaction update(@PathVariable Long id, @RequestBody Transaction transaction) {
-        transaction.setId(id);
-        return transactionService.save(transaction);
+    public Transaction create(@RequestBody @Valid CreateTransactionDto transaction) {
+        return transactionService.create(transaction);
     }
 
     @DeleteMapping("/{id}")

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +17,5 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     Page<Auction> findByStatus(AuctionStatus status, Pageable pageable);
     Page<Auction> findByProduct_NameContainingIgnoreCase(String productName, Pageable pageable);
     Optional<Auction> findByIdAndStatus(Long id, AuctionStatus status);
+    List<Auction> findByStatusAndEndTimeBefore(AuctionStatus status, LocalDateTime time);
 }

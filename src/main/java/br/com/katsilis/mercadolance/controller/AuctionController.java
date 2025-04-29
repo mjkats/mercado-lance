@@ -1,8 +1,11 @@
 package br.com.katsilis.mercadolance.controller;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
+import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.model.Auction;
 import br.com.katsilis.mercadolance.service.AuctionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,17 +46,14 @@ public class AuctionController {
     }
 
     @PostMapping
-    public ResponseEntity<Auction> create(@RequestBody Auction auction) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(auctionService.save(auction));
+    public ResponseEntity<Auction> create(@RequestBody @Valid CreateAuctionDto auction) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(auctionService.create(auction));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Auction> update(@PathVariable Long id, @RequestBody Auction auction) {
-        Auction updatedAuction = auctionService.update(id, auction);
-
-        return !auction.equals(updatedAuction)
-            ? ResponseEntity.ok().build()
-            : ResponseEntity.notFound().build();
+    public ResponseEntity<Auction> update(@PathVariable Long id, @RequestBody UpdateAuctionDto auction) {
+        auctionService.update(id, auction);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")

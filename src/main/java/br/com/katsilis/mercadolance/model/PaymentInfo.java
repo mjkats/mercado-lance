@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @EqualsAndHashCode
 @ToString
+@Builder
 @Entity
 public class PaymentInfo {
 

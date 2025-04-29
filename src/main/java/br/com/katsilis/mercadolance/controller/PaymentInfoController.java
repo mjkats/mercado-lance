@@ -1,7 +1,9 @@
 package br.com.katsilis.mercadolance.controller;
 
+import br.com.katsilis.mercadolance.dto.creation.CreatePaymentInfoDto;
 import br.com.katsilis.mercadolance.model.PaymentInfo;
 import br.com.katsilis.mercadolance.service.PaymentInfoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +27,8 @@ public class PaymentInfoController {
     }
 
     @PostMapping
-    public PaymentInfo create(@RequestBody PaymentInfo paymentInfo) {
-        return paymentInfoService.save(paymentInfo);
-    }
-
-    @PutMapping("/{id}")
-    public PaymentInfo update(@PathVariable Long id, @RequestBody PaymentInfo paymentInfo) {
-        paymentInfo.setId(id);
-        return paymentInfoService.save(paymentInfo);
+    public PaymentInfo create(@RequestBody @Valid CreatePaymentInfoDto paymentInfo) {
+        return paymentInfoService.create(paymentInfo);
     }
 
     @DeleteMapping("/{id}")

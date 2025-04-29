@@ -1,6 +1,6 @@
 package br.com.katsilis.mercadolance.service.impl;
 
-import br.com.katsilis.mercadolance.dto.BidDto;
+import br.com.katsilis.mercadolance.dto.creation.CreateBidDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.exception.RedisException;
 import br.com.katsilis.mercadolance.model.Auction;
@@ -62,7 +62,7 @@ public class BidServiceImpl implements BidService {
 
     @Override
     @Transactional
-    public Bid create(BidDto bid) {
+    public void create(CreateBidDto bid) {
         redisService.saveBidWithTtl(bid);
 
         long timeoutMillis = 6000;
@@ -70,6 +70,7 @@ public class BidServiceImpl implements BidService {
 
         try {
             while (System.currentTimeMillis() < endTime) {
+                log.info("a");
                 Set<String> bidKeys = redisService.getAuctionBidKeys(bid.getAuctionId());
 
                 if (bidKeys == null || bidKeys.isEmpty())
@@ -80,8 +81,10 @@ public class BidServiceImpl implements BidService {
                 if (earliestBid == null)
                     throw new RedisException("No bids were found for auction " + bid.getAuctionId() + " while creating bid for user " + bid.getUserId() + ".");
 
-                if (canProcessBidCreation(bid, earliestBid))
-                    return processBidCreation(bid);
+                if (canProcessBidCreation(bid, earliestBid)) {
+                    processBidCreation(bid);
+                    return;
+                }
 
                 Thread.sleep(1000);
             }
@@ -107,61 +110,65 @@ public class BidServiceImpl implements BidService {
     }
 
     @Override
-    public Bid update(Long id, Bid bid) {
-        Bid existing = findById(id);
-        existing.setBidTime(bid.getBidTime());
-        existing.setAmount(bid.getAmount());
-
-        return bidRepository.save(existing);
-    }
-
-    @Override
-    public Bid getLatestAuctionBid(Long auctionId) {
-        return bidRepository.findTopByAuction_IdOrderByAmountDesc(auctionId)
+    public Bid getLatestActiveAuctionBid(Long auctionId) {
+        return bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(auctionId, AuctionStatus.ACTIVE)
             .orElseThrow(() -> new IllegalArgumentException("Highest bid could not be found for auction " + auctionId));
     }
 
     private Map<String, String> getEarliestBidFromRedis(Long auctionId) {
-        Map<Object, Object> bidsRedisData = redisService.getAuctionBidValues(auctionId);
+        List<Map<Object, Object>> bidsRedisData = redisService.getAuctionBidValues(auctionId);
         Map<String, String> earliestBid = null;
         LocalDateTime earliestCreatedAt = LocalDateTime.MAX;
 
-        for (Map.Entry<Object, Object> entry : bidsRedisData.entrySet()) {
-            Map<String, String> bidRedisData = (Map<String, String>) entry.getValue();
-            String createdAtStr = bidRedisData.get("createdAt");
+        for (Map<Object, Object> bidRedisData : bidsRedisData) {
+            Map<String, String> bidData = new HashMap<>();
+            for (Map.Entry<Object, Object> entry : bidRedisData.entrySet()) {
+                bidData.put(entry.getKey().toString(), entry.getValue().toString());
+            }
+
+            String createdAtStr = bidData.get("createdAt");
 
             try {
                 LocalDateTime createdAt = LocalDateTime.parse(createdAtStr);
 
                 if (createdAt.isBefore(earliestCreatedAt)) {
                     earliestCreatedAt = createdAt;
-                    earliestBid = bidRedisData;
+                    earliestBid = bidData;
                 }
 
             } catch (Exception e) {
-                log.error("Erro ao fazer parse de createdAt para o lance: {}", entry.getKey(), e);
+                log.error("Erro ao fazer parse de createdAt para o lance: {}", bidData, e);
             }
         }
+
         return earliestBid;
     }
 
-    private boolean canProcessBidCreation(BidDto bid, Map<String, String> earliestBid) {
+    private boolean canProcessBidCreation(CreateBidDto bid, Map<String, String> earliestBid) {
         return bid.getUserId().equals(Long.parseLong(earliestBid.get("userId")))
             && bid.getAuctionId().equals(Long.parseLong(earliestBid.get("auctionId")));
     }
 
-    private Bid processBidCreation(BidDto bid) {
+    private Bid processBidCreation(CreateBidDto bid) {
         Auction auction = auctionService.findByIdAndStatus(bid.getAuctionId(), AuctionStatus.ACTIVE);
 
-        Bid highestBid = auction.getBids().stream()
-            .max(Comparator.comparing(Bid::getAmount))
-            .orElseThrow(() -> new IllegalArgumentException("No bids found for auction"));
-
-        if (highestBid.getUser().getId().equals(bid.getUserId()))
+        if (auction.getCreatedBy().getId().equals(bid.getUserId()))
             throw new IllegalArgumentException("You cannot bid on your own auction");
 
-        if (highestBid.getAmount() >= bid.getAmount())
-            throw new IllegalArgumentException("Your bid must be higher than the current highest bid");
+        if (auction.getStartingPrice() >= bid.getAmount())
+            throw new IllegalArgumentException("Your bid must be higher than the starting price of the auction");
+
+        if (auction.getBids() != null && !auction.getBids().isEmpty()) {
+            Bid highestBid = auction.getBids().stream()
+                .max(Comparator.comparing(Bid::getAmount))
+                .orElseThrow(() -> new IllegalArgumentException("No bids found for auction"));
+
+            if (highestBid.getUser().getId().equals(bid.getUserId()))
+                throw new IllegalArgumentException("You already have the highest bid placed");
+
+            if (highestBid.getAmount() >= bid.getAmount())
+                throw new IllegalArgumentException("Your bid must be higher than the current highest bid");
+        }
 
         User user = userService.findById(bid.getUserId());
         Bid newBid = new Bid(user, auction, bid.getAmount());

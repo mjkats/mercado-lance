@@ -1,4 +1,4 @@
-package br.com.katsilis.mercadolance.dto;
+package br.com.katsilis.mercadolance.dto.creation;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class BidDto {
+public class CreateBidDto {
 
     @NotNull(message = "User ID is required")
     private Long userId;
