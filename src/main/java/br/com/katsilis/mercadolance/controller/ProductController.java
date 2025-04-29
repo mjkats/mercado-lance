@@ -1,7 +1,9 @@
 package br.com.katsilis.mercadolance.controller;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateProductDto;
 import br.com.katsilis.mercadolance.model.Product;
 import br.com.katsilis.mercadolance.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +27,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product create(@RequestBody Product product) {
-        return productService.save(product);
-    }
-
-    @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody Product product) {
-        product.setId(id);
-        return productService.save(product);
+    public Product create(@RequestBody @Valid CreateProductDto product) {
+        return productService.create(product);
     }
 
     @DeleteMapping("/{id}")

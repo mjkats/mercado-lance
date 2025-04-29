@@ -1,7 +1,10 @@
 package br.com.katsilis.mercadolance.controller;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateUserDto;
+import br.com.katsilis.mercadolance.dto.update.UpdateUserDto;
 import br.com.katsilis.mercadolance.model.User;
 import br.com.katsilis.mercadolance.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +28,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        return userService.save(user);
+    public User create(@RequestBody @Valid CreateUserDto user) {
+        return userService.create(user);
     }
 
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) {
-        user.setId(id);
-        return userService.save(user);
+    public void update(@PathVariable Long id, @RequestBody UpdateUserDto user) {
+        userService.update(id, user);
     }
 
     @DeleteMapping("/{id}")

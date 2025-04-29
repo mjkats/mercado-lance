@@ -1,6 +1,6 @@
 package br.com.katsilis.mercadolance.controller;
 
-import br.com.katsilis.mercadolance.dto.BidDto;
+import br.com.katsilis.mercadolance.dto.creation.CreateBidDto;
 import br.com.katsilis.mercadolance.model.Bid;
 import br.com.katsilis.mercadolance.service.BidService;
 import jakarta.validation.Valid;
@@ -44,17 +44,9 @@ public class BidController {
     }
 
     @PostMapping
-    public ResponseEntity<Bid> create(@Valid @RequestBody BidDto bid) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(bidService.create(bid));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Bid> update(@PathVariable Long id, @RequestBody Bid bid) {
-        Bid updatedBid = bidService.update(id, bid);
-
-        return !bid.equals(updatedBid)
-            ? ResponseEntity.ok().build()
-            : ResponseEntity.notFound().build();
+    public ResponseEntity<Bid> create(@Valid @RequestBody CreateBidDto bid) {
+        bidService.create(bid);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{id}")
@@ -73,11 +65,11 @@ public class BidController {
             executor.submit(() -> {
                 try {
                     while (true) {
-                        Bid updatedBid = bidService.getLatestAuctionBid(auctionId);
-                        emitter.send(updatedBid);
+                        Bid updatedBid = bidService.getLatestActiveAuctionBid(auctionId);
+                        emitter.send(updatedBid.getAmount());
                         Thread.sleep(1000);
                     }
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException | InterruptedException | IllegalArgumentException e) {
                     emitter.completeWithError(e);
                     throw e;
                 }

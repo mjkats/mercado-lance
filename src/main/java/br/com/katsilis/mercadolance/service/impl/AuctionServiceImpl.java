@@ -1,10 +1,16 @@
 package br.com.katsilis.mercadolance.service.impl;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
+import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.model.Product;
+import br.com.katsilis.mercadolance.model.User;
 import br.com.katsilis.mercadolance.repository.AuctionRepository;
 import br.com.katsilis.mercadolance.service.AuctionService;
+import br.com.katsilis.mercadolance.service.ProductService;
+import br.com.katsilis.mercadolance.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,6 +27,8 @@ import java.util.List;
 public class AuctionServiceImpl implements AuctionService {
 
     private final AuctionRepository auctionRepository;
+    private final ProductService productService;
+    private final UserService userService;
 
     @Override
     public List<Auction> findAll() {
@@ -79,11 +88,31 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public Auction save(Auction auction) {
+    public Auction create(CreateAuctionDto auction) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (auction.getEndTime().isBefore(now))
+            throw new IllegalArgumentException("Auction end time needs to be after current time");
+
+        Product product = productService.findById(auction.getProductId());
+        User creator = userService.findById(auction.getCreatorId());
+
+        Auction newAuction = Auction.builder()
+            .createdAt(now)
+            .startTime(now)
+            .title(auction.getTitle())
+            .description(auction.getDescription())
+            .startingPrice(auction.getStartingPrice())
+            .endTime(auction.getEndTime())
+            .product(product)
+            .status(AuctionStatus.ACTIVE)
+            .createdBy(creator)
+            .build();
+
         try {
-            return auctionRepository.save(auction);
+            return auctionRepository.save(newAuction);
         } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction save");
+            throw new DatabaseException(e.getMessage(), "Auction create");
         }
     }
 
@@ -100,20 +129,46 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public Auction update(Long id, Auction updatedAuction) {
+    public void update(Long id, UpdateAuctionDto updatedAuction) {
         Auction existing = findById(id);
+        boolean hasUpdate = false;
 
-        existing.setTitle(updatedAuction.getTitle());
-        existing.setDescription(updatedAuction.getDescription());
-        existing.setStartTime(updatedAuction.getStartTime());
-        existing.setEndTime(updatedAuction.getEndTime());
-        existing.setStatus(updatedAuction.getStatus());
-        existing.setProduct(updatedAuction.getProduct());
-
-        try {
-            return auctionRepository.save(existing);
-        } catch (RuntimeException e) {
-            throw new DatabaseException(e.getMessage(), "Auction update");
+        if (updatedAuction.getTitle() != null) {
+            existing.setTitle(updatedAuction.getTitle());
+            hasUpdate = true;
         }
+
+        if (updatedAuction.getDescription() != null) {
+            existing.setDescription(updatedAuction.getDescription());
+            hasUpdate = true;
+        }
+
+        if (updatedAuction.getEndTime() != null && updatedAuction.getEndTime().isAfter(existing.getEndTime())) {
+            existing.setEndTime(updatedAuction.getEndTime());
+            hasUpdate = true;
+        }
+
+        if (updatedAuction.getStatus() != null) {
+            existing.setStatus(updatedAuction.getStatus());
+            hasUpdate = true;
+        }
+
+        if (hasUpdate) {
+            existing.setUpdatedAt(LocalDateTime.now());
+
+            try {
+                auctionRepository.save(existing);
+                return;
+            } catch (RuntimeException e) {
+                throw new DatabaseException(e.getMessage(), "Auction update");
+            }
+        }
+
+        throw new IllegalArgumentException("There are no updates to be made for auction id " + id + ".");
+    }
+
+    @Override
+    public List<Auction> findExpiredAuctions() {
+        return auctionRepository.findByStatusAndEndTimeBefore(AuctionStatus.ACTIVE, LocalDateTime.now());
     }
 }

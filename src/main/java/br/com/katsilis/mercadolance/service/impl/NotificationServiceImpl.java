@@ -1,12 +1,16 @@
 package br.com.katsilis.mercadolance.service.impl;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateNotificationDto;
 import br.com.katsilis.mercadolance.model.Notification;
+import br.com.katsilis.mercadolance.model.User;
 import br.com.katsilis.mercadolance.repository.NotificationRepository;
 import br.com.katsilis.mercadolance.service.NotificationService;
+import br.com.katsilis.mercadolance.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -14,6 +18,7 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserService userService;
 
     @Override
     public List<Notification> findAll() {
@@ -27,17 +32,19 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notification save(Notification notification) {
-        return notificationRepository.save(notification);
-    }
+    public Notification create(CreateNotificationDto notification) {
+        LocalDateTime now = LocalDateTime.now();
+        User user = userService.findById(notification.getUserId());
 
-    @Override
-    public Notification update(Long id, Notification notification) {
-        Notification existing = findById(id);
-        existing.setMessage(notification.getMessage());
-        existing.setRead(notification.isRead());
-        existing.setUser(notification.getUser());
-        return notificationRepository.save(existing);
+        Notification newNotification = Notification
+            .builder()
+            .message(notification.getMessage())
+            .user(user)
+            .read(false)
+            .sentAt(now)
+            .build();
+
+        return notificationRepository.save(newNotification);
     }
 
     @Override

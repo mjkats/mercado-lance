@@ -1,6 +1,5 @@
 package br.com.katsilis.mercadolance.model;
 
-import br.com.katsilis.mercadolance.enums.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,6 +12,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @ToString
 @Entity
+@Builder
 public class Transaction {
 
     @Id
@@ -35,11 +35,4 @@ public class Transaction {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TransactionStatus status;
 }

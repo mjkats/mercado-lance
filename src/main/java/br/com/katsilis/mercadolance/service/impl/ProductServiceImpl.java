@@ -1,5 +1,6 @@
 package br.com.katsilis.mercadolance.service.impl;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateProductDto;
 import br.com.katsilis.mercadolance.model.Product;
 import br.com.katsilis.mercadolance.repository.ProductRepository;
 import br.com.katsilis.mercadolance.service.ProductService;
@@ -27,8 +28,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product save(Product product) {
-        return productRepository.save(product);
+    public Product create(CreateProductDto product) {
+        Product newProduct = Product.builder().name(product.getName()).build();
+
+        return productRepository.save(newProduct);
     }
 
     @Override

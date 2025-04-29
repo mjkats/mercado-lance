@@ -1,7 +1,9 @@
 package br.com.katsilis.mercadolance.controller;
 
+import br.com.katsilis.mercadolance.dto.creation.CreateNotificationDto;
 import br.com.katsilis.mercadolance.model.Notification;
 import br.com.katsilis.mercadolance.service.NotificationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +29,8 @@ public class NotificationController {
     }
 
     @PostMapping
-    public ResponseEntity<Notification> create(@RequestBody Notification notification) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(notificationService.save(notification));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Notification> update(@PathVariable Long id, @RequestBody Notification notification) {
-        return ResponseEntity.ok(notificationService.update(id, notification));
+    public ResponseEntity<Notification> create(@RequestBody @Valid CreateNotificationDto notification) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(notificationService.create(notification));
     }
 
     @DeleteMapping("/{id}")

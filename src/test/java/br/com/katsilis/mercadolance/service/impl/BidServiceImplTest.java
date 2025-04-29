@@ -1,5 +1,6 @@
 package br.com.katsilis.mercadolance.service.impl;
 
+import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.model.Bid;
 import br.com.katsilis.mercadolance.repository.BidRepository;
 import br.com.katsilis.mercadolance.service.AuctionService;
@@ -12,7 +13,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -123,41 +123,21 @@ class BidServiceImplTest {
     }
 
     @Test
-    void update_existingBid_updatesSuccessfully() {
-        Bid existing = new Bid();
-        existing.setBidTime(LocalDateTime.now());
-        existing.setAmount(100.0);
-
-        Bid updated = new Bid();
-        updated.setBidTime(LocalDateTime.now());
-        updated.setAmount(200.0);
-
-        when(bidRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(bidRepository.save(any(Bid.class))).thenReturn(existing);
-
-        Bid result = bidService.update(1L, updated);
-
-        assertEquals(200.0, result.getAmount());
-        verify(bidRepository).findById(1L);
-        verify(bidRepository).save(existing);
-    }
-
-    @Test
-    void getLatestAuctionBid_existingAuction_returnsBid() {
+    void getLatestAuctionBid_existingActiveAuction_returnsBid() {
         Bid bid = new Bid();
-        when(bidRepository.findTopByAuction_IdOrderByAmountDesc(1L)).thenReturn(Optional.of(bid));
+        when(bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE)).thenReturn(Optional.of(bid));
 
-        Bid result = bidService.getLatestAuctionBid(1L);
+        Bid result = bidService.getLatestActiveAuctionBid(1L);
 
         assertNotNull(result);
-        verify(bidRepository).findTopByAuction_IdOrderByAmountDesc(1L);
+        verify(bidRepository).findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE);
     }
 
     @Test
-    void getLatestAuctionBid_nonExistingAuction_throwsException() {
-        when(bidRepository.findTopByAuction_IdOrderByAmountDesc(1L)).thenReturn(Optional.empty());
+    void getLatestAuctionBid_nonExistingActiveAuction_throwsException() {
+        when(bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> bidService.getLatestAuctionBid(1L));
-        verify(bidRepository).findTopByAuction_IdOrderByAmountDesc(1L);
+        assertThrows(IllegalArgumentException.class, () -> bidService.getLatestActiveAuctionBid(1L));
+        verify(bidRepository).findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE);
     }
 }
