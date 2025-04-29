@@ -6,11 +6,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
 @Entity
+@Builder
 public class Bid {
 
     public Bid(User user, Auction auction, double amount) {

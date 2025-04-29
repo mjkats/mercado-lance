@@ -1,10 +1,13 @@
 package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateTransactionDto;
+import br.com.katsilis.mercadolance.dto.response.TransactionResponseDto;
 import br.com.katsilis.mercadolance.model.Transaction;
 import br.com.katsilis.mercadolance.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,22 +20,24 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping
-    public List<Transaction> getAll() {
-        return transactionService.findAll();
+    public ResponseEntity<List<TransactionResponseDto>> getAll() {
+        return ResponseEntity.ok(transactionService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Transaction getById(@PathVariable Long id) {
-        return transactionService.findById(id);
+    public ResponseEntity<TransactionResponseDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(transactionService.findById(id));
     }
 
     @PostMapping
-    public Transaction create(@RequestBody @Valid CreateTransactionDto transaction) {
-        return transactionService.create(transaction);
+    public ResponseEntity<Void> create(@RequestBody @Valid CreateTransactionDto transaction) {
+        transactionService.create(transaction);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         transactionService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

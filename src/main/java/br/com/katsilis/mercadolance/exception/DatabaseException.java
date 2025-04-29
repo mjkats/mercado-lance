@@ -5,10 +5,7 @@ import lombok.Getter;
 @Getter
 public class DatabaseException extends RuntimeException {
 
-    private final String action;
-
-    public DatabaseException(String message, String action) {
-        super(message);
-        this.action = action;
+    public DatabaseException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

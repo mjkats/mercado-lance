@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @ToString
+@EqualsAndHashCode
 public class UpdateAuctionDto {
 
     private String title;

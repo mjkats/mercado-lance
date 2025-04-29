@@ -1,7 +1,7 @@
 package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateNotificationDto;
-import br.com.katsilis.mercadolance.model.Notification;
+import br.com.katsilis.mercadolance.dto.response.NotificationResponseDto;
 import br.com.katsilis.mercadolance.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +19,19 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<List<Notification>> getAll() {
+    public ResponseEntity<List<NotificationResponseDto>> getAll() {
         return ResponseEntity.ok(notificationService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Notification> getById(@PathVariable Long id) {
+    public ResponseEntity<NotificationResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(notificationService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Notification> create(@RequestBody @Valid CreateNotificationDto notification) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(notificationService.create(notification));
+    public ResponseEntity<Void> create(@RequestBody @Valid CreateNotificationDto notification) {
+        notificationService.create(notification);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{id}")

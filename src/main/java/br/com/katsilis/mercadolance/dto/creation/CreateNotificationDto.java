@@ -1,15 +1,14 @@
 package br.com.katsilis.mercadolance.dto.creation;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
+@EqualsAndHashCode
 public class CreateNotificationDto {
 
     @NotNull(message = "User ID is required.")

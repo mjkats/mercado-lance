@@ -1,7 +1,7 @@
 package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateBidDto;
-import br.com.katsilis.mercadolance.model.Bid;
+import br.com.katsilis.mercadolance.dto.response.BidResponseDto;
 import br.com.katsilis.mercadolance.service.BidService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,24 +27,24 @@ public class BidController {
     private final BidService bidService;
 
     @GetMapping
-    public ResponseEntity<List<Bid>> getAll() {
+    public ResponseEntity<List<BidResponseDto>> getAll() {
         return ResponseEntity.ok(bidService.findAll());
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<Bid>> getBids(@RequestParam(required = false) Long auctionId,
+    public ResponseEntity<Page<BidResponseDto>> getBids(@RequestParam(required = false) Long auctionId,
                                              @RequestParam(required = false) Long userId,
                                              @PageableDefault(sort = "bidTime", direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
         return ResponseEntity.ok(bidService.getBids(auctionId, userId, pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Bid> getById(@PathVariable Long id) {
+    public ResponseEntity<BidResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(bidService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Bid> create(@Valid @RequestBody CreateBidDto bid) {
+    public ResponseEntity<Void> create(@Valid @RequestBody CreateBidDto bid) {
         bidService.create(bid);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -65,7 +65,7 @@ public class BidController {
             executor.submit(() -> {
                 try {
                     while (true) {
-                        Bid updatedBid = bidService.getLatestActiveAuctionBid(auctionId);
+                        BidResponseDto updatedBid = bidService.getLatestActiveAuctionBid(auctionId);
                         emitter.send(updatedBid.getAmount());
                         Thread.sleep(1000);
                     }

@@ -1,15 +1,18 @@
 package br.com.katsilis.mercadolance.service;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateUserDto;
+import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateUserDto;
 import br.com.katsilis.mercadolance.model.User;
 
 import java.util.List;
 
 public interface UserService {
-    List<User> findAll();
-    User findById(Long id);
-    User create(CreateUserDto user);
+    List<UserResponseDto> findAll();
+    UserResponseDto findById(Long id);
+    User findOriginalById(Long id);
+    void create(CreateUserDto user);
     void update(Long id, UpdateUserDto user);
     void deleteById(Long id);
+    UserResponseDto userToResponseDto(User user);
 }

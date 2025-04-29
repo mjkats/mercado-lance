@@ -1,9 +1,9 @@
 package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
+import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
-import br.com.katsilis.mercadolance.model.Auction;
 import br.com.katsilis.mercadolance.service.AuctionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,34 +24,35 @@ public class AuctionController {
     private final AuctionService auctionService;
 
     @GetMapping
-    public ResponseEntity<List<Auction>> getAll() {
+    public ResponseEntity<List<AuctionResponseDto>> getAll() {
         return ResponseEntity.ok(auctionService.findAll());
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<Auction>> getAuctions(@RequestParam(required = false) AuctionStatus status,
-                                                     @RequestParam(required = false) String productName,
-                                                     @PageableDefault(sort = "title", size = 20) Pageable pageable) {
+    public ResponseEntity<Page<AuctionResponseDto>> getAuctions(@RequestParam(required = false) AuctionStatus status,
+                                                                @RequestParam(required = false) String productName,
+                                                                @PageableDefault(sort = "title", size = 20) Pageable pageable) {
         return ResponseEntity.ok(auctionService.getAuctions(status, productName, pageable));
     }
 
     @GetMapping("/status")
-    public ResponseEntity<List<Auction>> getByStatus(@RequestParam AuctionStatus status) {
+    public ResponseEntity<List<AuctionResponseDto>> getByStatus(@RequestParam AuctionStatus status) {
         return ResponseEntity.ok(auctionService.findByStatus(status));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Auction> getById(@PathVariable Long id) {
+    public ResponseEntity<AuctionResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(auctionService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Auction> create(@RequestBody @Valid CreateAuctionDto auction) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(auctionService.create(auction));
+    public ResponseEntity<Void> create(@RequestBody @Valid CreateAuctionDto auction) {
+        auctionService.create(auction);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Auction> update(@PathVariable Long id, @RequestBody UpdateAuctionDto auction) {
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody UpdateAuctionDto auction) {
         auctionService.update(id, auction);
         return ResponseEntity.ok().build();
     }
