@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Builder
 public class BidResponseDto {
     private UserResponseDto user;
     private AuctionResponseDto auction;

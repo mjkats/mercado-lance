@@ -2,9 +2,11 @@ package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateBidDto;
 import br.com.katsilis.mercadolance.dto.response.BidResponseDto;
+import br.com.katsilis.mercadolance.exception.notfound.BidNotFoundException;
 import br.com.katsilis.mercadolance.service.BidService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,6 +23,7 @@ import java.util.concurrent.Executors;
 @RestController
 @RequestMapping("/bids")
 @RequiredArgsConstructor
+@Slf4j
 public class BidController {
 
     private final BidService bidService;
@@ -57,6 +59,7 @@ public class BidController {
 
     @GetMapping("/bid-updates/{auctionId}")
     public SseEmitter streamBidUpdates(@PathVariable Long auctionId) {
+        log.info("Creating SSE connection for auction with id {}...", auctionId);
         SseEmitter emitter = new SseEmitter();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -64,20 +67,28 @@ public class BidController {
         try {
             executor.submit(() -> {
                 try {
-                    while (true) {
-                        BidResponseDto updatedBid = bidService.getLatestActiveAuctionBid(auctionId);
-                        emitter.send(updatedBid.getAmount());
-                        Thread.sleep(1000);
+                    while (!Thread.currentThread().isInterrupted()) {
+                        BidResponseDto updatedBid = null;
+                        try {
+                            updatedBid = bidService.getLatestActiveAuctionBid(auctionId);
+                        } catch (BidNotFoundException e) {
+                            //do nothing
+                        }
+
+                        if (updatedBid != null)
+                            emitter.send(updatedBid.getAmount());
+
+                        Thread.sleep(3000);
                     }
-                } catch (IOException | InterruptedException | IllegalArgumentException e) {
+                } catch (Exception e) {
+                    log.error("Error occurred on SSE connection for auction with id {}", auctionId, e);
                     emitter.completeWithError(e);
-                    throw e;
                 }
             });
         } catch (Exception e) {
+            log.error("Error occurred on SSE connection thread for auction with id {}", auctionId, e);
             emitter.completeWithError(e);
         } finally {
-            executor.close();
             executor.shutdown();
         }
 

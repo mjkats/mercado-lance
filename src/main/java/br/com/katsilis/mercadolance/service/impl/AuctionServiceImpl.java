@@ -1,18 +1,18 @@
 package br.com.katsilis.mercadolance.service.impl;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
-import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
-import br.com.katsilis.mercadolance.dto.response.ProductResponseDto;
-import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
+import br.com.katsilis.mercadolance.dto.response.*;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.exception.illegalargument.AuctionIllegalArgumentException;
 import br.com.katsilis.mercadolance.exception.notfound.AuctionNotFoundException;
 import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.model.Bid;
 import br.com.katsilis.mercadolance.model.Product;
 import br.com.katsilis.mercadolance.model.User;
 import br.com.katsilis.mercadolance.repository.AuctionRepository;
+import br.com.katsilis.mercadolance.repository.BidRepository;
 import br.com.katsilis.mercadolance.service.AuctionService;
 import br.com.katsilis.mercadolance.service.ProductService;
 import br.com.katsilis.mercadolance.service.UserService;
@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,6 +32,7 @@ import java.util.List;
 public class AuctionServiceImpl implements AuctionService {
 
     private final AuctionRepository auctionRepository;
+    private final BidRepository bidRepository;
     private final ProductService productService;
     private final UserService userService;
 
@@ -77,12 +79,15 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public List<AuctionResponseDto> findByStatus(AuctionStatus status) {
+    public List<AuctionBidResponseDto> findByStatus(AuctionStatus status) {
         log.info("Called findByStatus with status={}", status);
 
         try {
+            List<AuctionBidResponseDto> response = new ArrayList<>();
             List<Auction> auctions = auctionRepository.findByStatus(status);
-            List<AuctionResponseDto> response = auctions.stream().map(this::auctionToResponseDto).toList();
+
+            auctions.forEach(auc -> response.add(auctionToResponseDto(auc, getAuctionHighestBidAmount(auc))));
+
             log.info("Returning findByStatus result: {}", response);
             return response;
         } catch (Exception e) {
@@ -91,14 +96,14 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public AuctionResponseDto findById(Long id) {
+    public AuctionBidResponseDto findById(Long id) {
         log.info("Called findById with id={}", id);
 
         try {
             Auction auction = auctionRepository.findById(id)
                 .orElseThrow(() -> new AuctionNotFoundException("Auction with id " + id + " not found"));
 
-            AuctionResponseDto response = auctionToResponseDto(auction);
+            AuctionBidResponseDto response = auctionToResponseDto(auction, getAuctionHighestBidAmount(auction));
             log.info("Returning findById result: {}", response);
             return response;
         } catch (AuctionNotFoundException e) {
@@ -254,6 +259,7 @@ public class AuctionServiceImpl implements AuctionService {
         UserResponseDto userResponseDto = userService.userToResponseDto(auction.getCreatedBy());
 
         return new AuctionResponseDto(
+            auction.getId(),
             auction.getTitle(),
             auction.getDescription(),
             productResponseDto,
@@ -263,5 +269,31 @@ public class AuctionServiceImpl implements AuctionService {
             auction.getEndTime(),
             auction.getStatus()
         );
+    }
+
+    @Override
+    public AuctionBidResponseDto auctionToResponseDto(Auction auction, double bidAmount) {
+        ProductResponseDto productResponseDto = productService.productToResponseDto(auction.getProduct());
+        UserResponseDto userResponseDto = userService.userToResponseDto(auction.getCreatedBy());
+
+        return new AuctionBidResponseDto(
+            auction.getId(),
+            auction.getTitle(),
+            auction.getDescription(),
+            productResponseDto,
+            userResponseDto,
+            auction.getStartingPrice(),
+            auction.getStartTime(),
+            auction.getEndTime(),
+            auction.getStatus(),
+            bidAmount
+        );
+    }
+
+    private double getAuctionHighestBidAmount(Auction auction) {
+        return bidRepository
+            .findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(auction.getId(), AuctionStatus.ACTIVE)
+            .map(Bid::getAmount)
+            .orElse(auction.getStartingPrice());
     }
 }

@@ -1,17 +1,17 @@
 package br.com.katsilis.mercadolance.service.impl;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
-import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
-import br.com.katsilis.mercadolance.dto.response.ProductResponseDto;
-import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
+import br.com.katsilis.mercadolance.dto.response.*;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.exception.illegalargument.AuctionIllegalArgumentException;
 import br.com.katsilis.mercadolance.exception.notfound.AuctionNotFoundException;
 import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.model.Bid;
 import br.com.katsilis.mercadolance.model.Product;
 import br.com.katsilis.mercadolance.model.User;
 import br.com.katsilis.mercadolance.repository.AuctionRepository;
+import br.com.katsilis.mercadolance.repository.BidRepository;
 import br.com.katsilis.mercadolance.service.ProductService;
 import br.com.katsilis.mercadolance.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +44,9 @@ class AuctionServiceImplTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private BidRepository bidRepository;
 
     private Auction auction;
     private CreateAuctionDto createAuctionDto;
@@ -95,8 +98,9 @@ class AuctionServiceImplTest {
     @Test
     void testFindByStatus() {
         when(auctionRepository.findByStatus(any(AuctionStatus.class))).thenReturn(List.of(auction));
+        when(bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(anyLong(), any(AuctionStatus.class))).thenReturn(Optional.ofNullable(Bid.builder().amount(10.0).build()));
 
-        List<AuctionResponseDto> auctions = auctionService.findByStatus(AuctionStatus.ACTIVE);
+        List<AuctionBidResponseDto> auctions = auctionService.findByStatus(AuctionStatus.ACTIVE);
 
         assertNotNull(auctions);
         assertEquals(1, auctions.size());
@@ -107,7 +111,7 @@ class AuctionServiceImplTest {
     void testFindById() {
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
 
-        AuctionResponseDto result = auctionService.findById(1L);
+        AuctionBidResponseDto result = auctionService.findById(1L);
 
         assertNotNull(result);
         assertEquals(auction.getTitle(), result.getTitle());

@@ -262,6 +262,8 @@ public class BidServiceImpl implements BidService {
             BidResponseDto response = bidToResponseDto(bid);
             log.info("Fetched latest active auction bid: {}", bid);
             return response;
+        } catch (BidNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new DatabaseException("Error while fetching latest active auction bid from auction with id " + auctionId, e);
         }

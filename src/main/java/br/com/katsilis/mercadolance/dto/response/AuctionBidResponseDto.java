@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode
-public class AuctionResponseDto {
+public class AuctionBidResponseDto {
     private Long id;
     private String title;
     private String description;
@@ -22,4 +22,5 @@ public class AuctionResponseDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private AuctionStatus status;
+    private double highestBidAmount;
 }

@@ -142,7 +142,7 @@ class BidServiceImplTest {
     void getLatestAuctionBid_nonExistingActiveAuction_throwsException() {
         when(bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE)).thenReturn(Optional.empty());
 
-        assertThrows(DatabaseException.class, () -> bidService.getLatestActiveAuctionBid(1L));
+        assertThrows(BidNotFoundException.class, () -> bidService.getLatestActiveAuctionBid(1L));
         verify(bidRepository).findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE);
     }
 
