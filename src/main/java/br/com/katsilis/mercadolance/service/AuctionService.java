@@ -1,10 +1,12 @@
 package br.com.katsilis.mercadolance.service;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
+import br.com.katsilis.mercadolance.dto.response.AuctionBidResponseDto;
 import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.model.Bid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,8 +16,8 @@ public interface AuctionService {
 
     List<AuctionResponseDto> findAll();
     Page<AuctionResponseDto> getAuctions(AuctionStatus status, String productName, Pageable pageable);
-    List<AuctionResponseDto> findByStatus(AuctionStatus status);
-    AuctionResponseDto findById(Long id);
+    List<AuctionBidResponseDto> findByStatus(AuctionStatus status);
+    AuctionBidResponseDto findById(Long id);
     AuctionResponseDto findByIdAndStatus(Long id, AuctionStatus status);
     Auction findOriginalByIdAndStatus(Long id, AuctionStatus status);
     void create(CreateAuctionDto auction);
@@ -23,4 +25,5 @@ public interface AuctionService {
     void update(Long id, UpdateAuctionDto auction);
     List<Auction> findExpiredAuctions();
     AuctionResponseDto auctionToResponseDto(Auction auction);
+    AuctionBidResponseDto auctionToResponseDto(Auction auction, double bidAmount);
 }

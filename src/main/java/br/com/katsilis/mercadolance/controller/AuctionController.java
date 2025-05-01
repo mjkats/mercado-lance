@@ -1,6 +1,7 @@
 package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
+import br.com.katsilis.mercadolance.dto.response.AuctionBidResponseDto;
 import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
@@ -36,12 +37,12 @@ public class AuctionController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<List<AuctionResponseDto>> getByStatus(@RequestParam AuctionStatus status) {
+    public ResponseEntity<List<AuctionBidResponseDto>> getByStatus(@RequestParam AuctionStatus status) {
         return ResponseEntity.ok(auctionService.findByStatus(status));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuctionResponseDto> getById(@PathVariable Long id) {
+    public ResponseEntity<AuctionBidResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(auctionService.findById(id));
     }
 
