@@ -130,20 +130,20 @@ class BidServiceImplTest {
     @Test
     void getLatestAuctionBid_existingActiveAuction_returnsBid() {
         Bid bid = new Bid();
-        when(bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE)).thenReturn(Optional.of(bid));
+        when(bidRepository.findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE)).thenReturn(Optional.of(bid));
 
         BidResponseDto result = bidService.getLatestActiveAuctionBid(1L);
 
         assertNotNull(result);
-        verify(bidRepository).findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE);
+        verify(bidRepository).findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE);
     }
 
     @Test
     void getLatestAuctionBid_nonExistingActiveAuction_throwsException() {
-        when(bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE)).thenReturn(Optional.empty());
+        when(bidRepository.findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE)).thenReturn(Optional.empty());
 
         assertThrows(BidNotFoundException.class, () -> bidService.getLatestActiveAuctionBid(1L));
-        verify(bidRepository).findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE);
+        verify(bidRepository).findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(1L, AuctionStatus.ACTIVE);
     }
 
     @Test

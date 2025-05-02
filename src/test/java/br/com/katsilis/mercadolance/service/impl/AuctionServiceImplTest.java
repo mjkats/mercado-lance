@@ -98,7 +98,7 @@ class AuctionServiceImplTest {
     @Test
     void testFindByStatus() {
         when(auctionRepository.findByStatus(any(AuctionStatus.class))).thenReturn(List.of(auction));
-        when(bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(anyLong(), any(AuctionStatus.class))).thenReturn(Optional.ofNullable(Bid.builder().amount(10.0).build()));
+        when(bidRepository.findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(anyLong(), any(AuctionStatus.class))).thenReturn(Optional.ofNullable(Bid.builder().amount(10.0).build()));
 
         List<AuctionBidResponseDto> auctions = auctionService.findByStatus(AuctionStatus.ACTIVE);
 

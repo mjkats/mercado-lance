@@ -46,7 +46,7 @@ class NotificationServiceImplTest {
         notification = new Notification(1L, user, "Test message", LocalDateTime.now(), false);
 
         notificationResponseDto = new NotificationResponseDto(
-            new UserResponseDto(user.getName(), user.getEmail()),
+            new UserResponseDto(user.getId(), user.getName(), user.getEmail()),
             "Test message",
             notification.getSentAt(),
             notification.isRead()
@@ -56,7 +56,7 @@ class NotificationServiceImplTest {
     @Test
     void testFindAll() {
         when(notificationRepository.findAll()).thenReturn(List.of(notification));
-        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getName(), user.getEmail()));
+        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getId(), user.getName(), user.getEmail()));
 
         List<NotificationResponseDto> result = notificationService.findAll();
 
@@ -68,7 +68,7 @@ class NotificationServiceImplTest {
     @Test
     void testFindById_Success() {
         when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
-        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getName(), user.getEmail()));
+        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getId(), user.getName(), user.getEmail()));
 
         NotificationResponseDto result = notificationService.findById(1L);
 
@@ -118,7 +118,7 @@ class NotificationServiceImplTest {
 
     @Test
     void testNotificationToResponseDto() {
-        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getName(), user.getEmail()));
+        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getId(), user.getName(), user.getEmail()));
 
         NotificationResponseDto result = notificationService.notificationToResponseDto(notification);
 

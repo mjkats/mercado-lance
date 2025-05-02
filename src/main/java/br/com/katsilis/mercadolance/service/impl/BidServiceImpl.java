@@ -23,9 +23,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class BidServiceImpl implements BidService {
     private final AuctionService auctionService;
     private final UserService userService;
     private final RedisService redisService;
+    private final Map<Long, List<SseEmitter>> emittersByAuction = new ConcurrentHashMap<>();
 
     @Override
     public List<BidResponseDto> findAll() {
@@ -229,6 +234,7 @@ public class BidServiceImpl implements BidService {
             User user = userService.findOriginalById(bid.getUserId());
             Bid newBid = new Bid(user, auction, bid.getAmount());
             bidRepository.save(newBid);
+            notifyBids(bid.getAuctionId(), bid.getAmount());
             log.info("Successfully created bid: {}", newBid);
         } catch (Exception e) {
             throw new DatabaseException("Error while creating bid", e);
@@ -256,7 +262,7 @@ public class BidServiceImpl implements BidService {
         log.info("Fetching latest active auction bid for auctionId: {}", auctionId);
 
         try {
-            Bid bid = bidRepository.findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(auctionId, AuctionStatus.ACTIVE)
+            Bid bid = bidRepository.findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(auctionId, AuctionStatus.ACTIVE)
                 .orElseThrow(() -> new BidNotFoundException("Highest bid could not be found for auction " + auctionId));
 
             BidResponseDto response = bidToResponseDto(bid);
@@ -275,5 +281,33 @@ public class BidServiceImpl implements BidService {
         AuctionResponseDto auctionResponseDto = auctionService.auctionToResponseDto(bid.getAuction());
 
         return new BidResponseDto(userResponseDto, auctionResponseDto, bid.getAmount());
+    }
+
+    @Override
+    public void handleBidUpdates(SseEmitter emitter, Long auctionId) {
+        emittersByAuction.computeIfAbsent(auctionId, k -> new CopyOnWriteArrayList<>()).add(emitter);
+
+        emitter.onCompletion(() -> removeEmitter(emitter, auctionId));
+        emitter.onTimeout(() -> removeEmitter(emitter, auctionId));
+        emitter.onError((e) -> removeEmitter(emitter, auctionId));
+    }
+
+    private void removeEmitter(SseEmitter emitter, Long auctionId) {
+        List<SseEmitter> emitters = emittersByAuction.get(auctionId);
+        if (emitters != null) {
+            emitters.remove(emitter);
+        }
+    }
+
+    public void notifyBids(Long auctionId, double bidAmount) {
+        List<SseEmitter> emitters = emittersByAuction.getOrDefault(auctionId, List.of());
+
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event().name("bid-update").data(bidAmount));
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+            }
+        }
     }
 }

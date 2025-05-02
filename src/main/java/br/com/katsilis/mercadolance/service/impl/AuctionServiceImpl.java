@@ -1,6 +1,7 @@
 package br.com.katsilis.mercadolance.service.impl;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateAuctionDto;
+import br.com.katsilis.mercadolance.dto.creation.CreateNotificationDto;
 import br.com.katsilis.mercadolance.dto.response.*;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
@@ -14,6 +15,7 @@ import br.com.katsilis.mercadolance.model.User;
 import br.com.katsilis.mercadolance.repository.AuctionRepository;
 import br.com.katsilis.mercadolance.repository.BidRepository;
 import br.com.katsilis.mercadolance.service.AuctionService;
+import br.com.katsilis.mercadolance.service.NotificationService;
 import br.com.katsilis.mercadolance.service.ProductService;
 import br.com.katsilis.mercadolance.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class AuctionServiceImpl implements AuctionService {
     private final BidRepository bidRepository;
     private final ProductService productService;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     @Override
     public List<AuctionResponseDto> findAll() {
@@ -149,7 +152,7 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public void create(CreateAuctionDto auction) {
+    public Long create(CreateAuctionDto auction) {
         log.info("Called create with auctionDto={}", auction);
 
         if (auction.getEndTime().isBefore(LocalDateTime.now()))
@@ -171,8 +174,9 @@ public class AuctionServiceImpl implements AuctionService {
                 .createdBy(creator)
                 .build();
 
-            auctionRepository.save(newAuction);
+            Auction savedAuction = auctionRepository.save(newAuction);
             log.info("Finished create. Saved auction: {}", newAuction);
+            return savedAuction.getId();
         } catch (Exception e) {
             throw new DatabaseException("Error while creating auction", e);
         }
@@ -221,6 +225,15 @@ public class AuctionServiceImpl implements AuctionService {
             }
 
             if (updatedAuction.getStatus() != null) {
+
+                if (existing.getStatus().equals(AuctionStatus.ACTIVE) && updatedAuction.getStatus().equals(AuctionStatus.FINISHED)) {
+                    Bid highestAuctionBid = getAuctionHighestBid(existing);
+
+                    if (highestAuctionBid != null)
+                        notificationService.create(new CreateNotificationDto(highestAuctionBid.getAuction().getCreatedBy().getId(), "Your bid of " + highestAuctionBid.getAmount() + " won the auction " + existing.getTitle()));
+                }
+
+
                 existing.setStatus(updatedAuction.getStatus());
                 hasUpdate = true;
             }
@@ -292,8 +305,13 @@ public class AuctionServiceImpl implements AuctionService {
 
     private double getAuctionHighestBidAmount(Auction auction) {
         return bidRepository
-            .findTopByAuction_IdAndAuction_StatusOrderByAmountDesc(auction.getId(), AuctionStatus.ACTIVE)
+            .findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(auction.getId(), AuctionStatus.ACTIVE)
             .map(Bid::getAmount)
             .orElse(auction.getStartingPrice());
+    }
+
+    private Bid getAuctionHighestBid(Auction auction) {
+        return bidRepository
+            .findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(auction.getId(), AuctionStatus.ACTIVE).orElse(null);
     }
 }

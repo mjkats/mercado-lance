@@ -97,6 +97,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDto productToResponseDto(Product product) {
-        return new ProductResponseDto(product.getName());
+        return new ProductResponseDto(product.getId(), product.getName());
     }
 }

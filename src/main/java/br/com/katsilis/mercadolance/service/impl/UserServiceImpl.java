@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,6 +46,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponseDto findByAuth0Id(String id) {
+        log.info("Fetching user with auth0 id {}", id);
+
+        User user = userRepository.findByAuth0Id(id)
+            .orElseThrow(() -> new UserNotFoundException("User with auth0 id " + id + " not found"));
+        log.info("Fetched user from database: {}", user);
+
+        return userToResponseDto(user);
+    }
+
+    @Override
     public User findOriginalById(Long id) {
         log.info("Fetching original user entity with id {}", id);
 
@@ -61,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
         User newUser = User.builder()
             .name(user.getName())
-            .auth0Id(user.getAuth0Id())
+            .auth0Id(URLDecoder.decode(user.getAuth0Id(), StandardCharsets.UTF_8))
             .email(user.getEmail())
             .createdAt(now)
             .build();
@@ -105,6 +118,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto userToResponseDto(User user) {
-        return new UserResponseDto(user.getEmail(), user.getName());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getName());
     }
 }
