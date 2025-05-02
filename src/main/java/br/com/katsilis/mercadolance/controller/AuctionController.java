@@ -47,9 +47,8 @@ public class AuctionController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody @Valid CreateAuctionDto auction) {
-        auctionService.create(auction);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Long> create(@RequestBody @Valid CreateAuctionDto auction) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(auctionService.create(auction));
     }
 
     @PutMapping("/{id}")

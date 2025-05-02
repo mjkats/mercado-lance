@@ -34,7 +34,7 @@ class ProductServiceImplTest {
     @BeforeEach
     void setUp() {
         product = new Product(1L, "Product 1");
-        productResponseDto = new ProductResponseDto("Product 1");
+        productResponseDto = new ProductResponseDto(1L, "Product 1");
     }
 
     @Test

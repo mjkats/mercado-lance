@@ -3,7 +3,6 @@ package br.com.katsilis.mercadolance.controller;
 import br.com.katsilis.mercadolance.dto.creation.CreateUserDto;
 import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateUserDto;
-import br.com.katsilis.mercadolance.model.User;
 import br.com.katsilis.mercadolance.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +27,11 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @GetMapping("/auth0/{id}")
+    public ResponseEntity<UserResponseDto> getByAuth0Id(@PathVariable String id) {
+        return ResponseEntity.ok(userService.findByAuth0Id(id));
     }
 
     @PostMapping

@@ -44,7 +44,7 @@ class UserServiceImplTest {
             .createdAt(LocalDateTime.now())
             .build();
 
-        userResponseDto = new UserResponseDto("user@example.com", "John Doe");
+        userResponseDto = new UserResponseDto(1L, "user@example.com", "John Doe");
     }
 
     @Test

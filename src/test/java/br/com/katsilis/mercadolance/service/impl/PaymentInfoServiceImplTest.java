@@ -48,7 +48,7 @@ class PaymentInfoServiceImplTest {
         paymentInfo = new PaymentInfo(1L, user, PaymentMethod.CREDIT_CARD, 100.0, LocalDateTime.now());
 
         paymentInfoResponseDto = new PaymentInfoResponseDto(
-            new UserResponseDto(user.getName(), user.getEmail()),
+            new UserResponseDto(user.getId(), user.getName(), user.getEmail()),
             PaymentMethod.CREDIT_CARD,
             100.0,
             paymentInfo.getPaymentDate()
@@ -57,7 +57,7 @@ class PaymentInfoServiceImplTest {
 
     @Test
     void testFindAll() {
-        UserResponseDto userResponseDto = new UserResponseDto(user.getName(), user.getEmail());
+        UserResponseDto userResponseDto = new UserResponseDto(user.getId(), user.getName(), user.getEmail());
         when(userService.userToResponseDto(any(User.class))).thenReturn(userResponseDto);
 
         when(paymentInfoRepository.findAll()).thenReturn(List.of(paymentInfo));
@@ -71,7 +71,7 @@ class PaymentInfoServiceImplTest {
 
     @Test
     void testFindById_Success() {
-        UserResponseDto userResponseDto = new UserResponseDto(user.getName(), user.getEmail());
+        UserResponseDto userResponseDto = new UserResponseDto(user.getId(), user.getName(), user.getEmail());
         when(userService.userToResponseDto(any(User.class))).thenReturn(userResponseDto);
 
         when(paymentInfoRepository.findById(1L)).thenReturn(Optional.of(paymentInfo));
@@ -125,7 +125,7 @@ class PaymentInfoServiceImplTest {
 
     @Test
     void testPaymentInfoToResponseDto() {
-        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getName(), user.getEmail()));
+        when(userService.userToResponseDto(user)).thenReturn(new UserResponseDto(user.getId(), user.getName(), user.getEmail()));
 
         PaymentInfoResponseDto result = paymentInfoService.paymentInfoToResponseDto(paymentInfo);
 

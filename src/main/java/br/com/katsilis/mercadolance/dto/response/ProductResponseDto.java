@@ -9,5 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class ProductResponseDto {
+    private Long id;
     private String name;
 }

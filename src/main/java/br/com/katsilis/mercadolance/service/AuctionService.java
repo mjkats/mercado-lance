@@ -6,7 +6,6 @@ import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
 import br.com.katsilis.mercadolance.model.Auction;
-import br.com.katsilis.mercadolance.model.Bid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,7 +19,7 @@ public interface AuctionService {
     AuctionBidResponseDto findById(Long id);
     AuctionResponseDto findByIdAndStatus(Long id, AuctionStatus status);
     Auction findOriginalByIdAndStatus(Long id, AuctionStatus status);
-    void create(CreateAuctionDto auction);
+    Long create(CreateAuctionDto auction);
     void delete(Long id);
     void update(Long id, UpdateAuctionDto auction);
     List<Auction> findExpiredAuctions();

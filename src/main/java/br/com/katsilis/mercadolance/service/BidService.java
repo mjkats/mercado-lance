@@ -5,6 +5,7 @@ import br.com.katsilis.mercadolance.dto.response.BidResponseDto;
 import br.com.katsilis.mercadolance.model.Bid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -17,4 +18,5 @@ public interface BidService {
     void delete(Long id);
     BidResponseDto getLatestActiveAuctionBid(Long auctionId);
     BidResponseDto bidToResponseDto(Bid bid);
+    void handleBidUpdates(SseEmitter emitter, Long auctionId);
 }
