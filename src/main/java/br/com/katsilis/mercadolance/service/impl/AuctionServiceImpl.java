@@ -153,7 +153,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public Long create(CreateAuctionDto auction) {
-        log.info("Called create with auctionDto={}", auction);
+        log.info("Processing auction creation: {}", auction);
 
         if (auction.getEndTime().isBefore(LocalDateTime.now()))
             throw new AuctionIllegalArgumentException("Auction end time needs to be after current time");
