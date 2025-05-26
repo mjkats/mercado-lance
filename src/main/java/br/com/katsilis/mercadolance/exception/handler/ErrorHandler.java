@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 @Slf4j
@@ -20,6 +21,12 @@ public class ErrorHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception e) {
         log.error("An untreated exception happened.", e);
+        return ResponseEntity.badRequest().body(INTERNAL_ERROR_MESSAGE);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceNotFoundException(NoResourceFoundException e) {
+        log.error("A Resource not found exception happened. Path: {}, Http Method: {}, ", e.getResourcePath(), e.getHttpMethod(), e);
         return ResponseEntity.badRequest().body(INTERNAL_ERROR_MESSAGE);
     }
 
