@@ -7,13 +7,6 @@ spring:
   servlet:
     context-path: /mercado-lance
 
-  cloud:
-    aws:
-      region:
-        static: ${REGION}
-      stack:
-        auto: false
-
   datasource:
     url: ${POSTGRES_URL}
     username: ${POSTGRES_USER}
@@ -29,7 +22,9 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST}
-      port: 6379
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: true
 
   threads:
     virtual:
