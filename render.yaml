@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: mercado-lance-service
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: POSTGRES_URL
+        value: jdbc:postgresql://<host>:<port>/<database>
+      - key: POSTGRES_USER
+        value: <db_user>
+      - key: POSTGRES_PASSWORD
+        value: <db_password>
+      - key: REDIS_HOST
+        value: <redis_host>
+      - key: REDIS_PASSWORD
+        value: <redis_password>
+      - key: OAUTH2_JWT_ISSUER
+        value: <issuer>
+      - key: FRONT_URL
+        value: <front_url>
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
