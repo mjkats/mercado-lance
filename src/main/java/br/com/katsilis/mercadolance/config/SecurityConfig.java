@@ -18,9 +18,6 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${front.localhost-url}")
-    private String frontLocalhostUrl;
-
     @Value("${front.url}")
     private String frontUrl;
 
@@ -44,7 +41,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(frontLocalhostUrl, frontUrl));
+        configuration.setAllowedOrigins(List.of(frontUrl));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Content-Type"));

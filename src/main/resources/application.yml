@@ -44,5 +44,4 @@ management:
         include: health
 
 front:
-  localhost-url: ${LOCALHOST_FRONT_URL}
   url: ${FRONT_URL}
