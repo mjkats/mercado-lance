@@ -187,11 +187,15 @@ public class AuctionServiceImpl implements AuctionService {
         log.info("Called delete with id={}", id);
 
         try {
-            if (!auctionRepository.existsById(id))
-                throw new AuctionNotFoundException("Auction with id " + id + " not found");
+            Auction auction = auctionRepository.findById(id)
+                .orElseThrow(() -> new AuctionNotFoundException("Auction with id " + id + " not found"));
 
-            auctionRepository.deleteById(id);
+            bidRepository.deleteByAuctionId(id);
+            log.info("Deleted bids for auction with id {}", id);
+
+            auctionRepository.delete(auction);
             log.info("Finished delete. Auction with id {} deleted", id);
+
         } catch (AuctionNotFoundException e) {
             throw e;
         } catch (Exception e) {

@@ -15,9 +15,8 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     Page<Bid> findByAuction_Id(Long auctionId, Pageable pageable);
     List<Bid> findByAuction_Id(Long auctionId);
     Page<Bid> findByUser_Id(Long userId, Pageable pageable);
+    void deleteByAuctionId(Long auctionId);
 
     @EntityGraph(attributePaths = {"user", "auction", "auction.product", "auction.createdBy"})
     Optional<Bid> findTop1ByAuction_IdAndAuction_StatusOrderByAmountDesc(Long auctionId, AuctionStatus status);
-
-
 }
