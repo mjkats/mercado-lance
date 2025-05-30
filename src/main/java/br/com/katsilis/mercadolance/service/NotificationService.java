@@ -2,7 +2,7 @@ package br.com.katsilis.mercadolance.service;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateNotificationDto;
 import br.com.katsilis.mercadolance.dto.response.NotificationResponseDto;
-import br.com.katsilis.mercadolance.model.Notification;
+import br.com.katsilis.mercadolance.entity.Notification;
 
 import java.util.List;
 

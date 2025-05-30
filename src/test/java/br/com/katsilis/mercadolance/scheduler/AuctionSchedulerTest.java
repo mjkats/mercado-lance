@@ -1,7 +1,7 @@
 package br.com.katsilis.mercadolance.scheduler;
 
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
-import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.entity.Auction;
 import br.com.katsilis.mercadolance.service.AuctionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -5,7 +5,7 @@ import br.com.katsilis.mercadolance.dto.response.AuctionBidResponseDto;
 import br.com.katsilis.mercadolance.dto.response.AuctionResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
-import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.entity.Auction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

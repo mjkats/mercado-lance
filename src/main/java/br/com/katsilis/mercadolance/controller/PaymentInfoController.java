@@ -2,7 +2,6 @@ package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreatePaymentInfoDto;
 import br.com.katsilis.mercadolance.dto.response.PaymentInfoResponseDto;
-import br.com.katsilis.mercadolance.model.PaymentInfo;
 import br.com.katsilis.mercadolance.service.PaymentInfoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

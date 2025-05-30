@@ -2,7 +2,7 @@ package br.com.katsilis.mercadolance.service;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateBidDto;
 import br.com.katsilis.mercadolance.dto.response.BidResponseDto;
-import br.com.katsilis.mercadolance.model.Bid;
+import br.com.katsilis.mercadolance.entity.Bid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

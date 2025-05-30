@@ -1,5 +1,6 @@
-package br.com.katsilis.mercadolance.model;
+package br.com.katsilis.mercadolance.entity;
 
+import br.com.katsilis.mercadolance.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @ToString
 @Builder
 @Entity
-public class Notification {
+public class PaymentInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,12 +24,13 @@ public class Notification {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String message;
+    private PaymentMethod paymentMethod;
 
     @Column(nullable = false)
-    private LocalDateTime sentAt;
+    private double amount;
 
     @Column(nullable = false)
-    private boolean read;
+    private LocalDateTime paymentDate;
 }

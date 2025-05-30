@@ -1,6 +1,6 @@
 package br.com.katsilis.mercadolance.repository;
 
-import br.com.katsilis.mercadolance.model.User;
+import br.com.katsilis.mercadolance.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

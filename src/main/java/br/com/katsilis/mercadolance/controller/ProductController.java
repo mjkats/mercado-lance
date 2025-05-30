@@ -29,9 +29,9 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody @Valid CreateProductDto product) {
-        productService.create(product);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Long> create(@RequestBody @Valid CreateProductDto product) {
+        Long productId = productService.create(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productId);
     }
 
     @DeleteMapping("/{id}")

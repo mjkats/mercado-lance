@@ -5,7 +5,7 @@ import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateUserDto;
 import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.exception.notfound.UserNotFoundException;
-import br.com.katsilis.mercadolance.model.User;
+import br.com.katsilis.mercadolance.entity.User;
 import br.com.katsilis.mercadolance.repository.UserRepository;
 import br.com.katsilis.mercadolance.service.UserService;
 import lombok.RequiredArgsConstructor;

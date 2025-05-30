@@ -3,7 +3,7 @@ package br.com.katsilis.mercadolance.scheduler;
 
 import br.com.katsilis.mercadolance.dto.update.UpdateAuctionDto;
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
-import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.entity.Auction;
 import br.com.katsilis.mercadolance.service.AuctionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

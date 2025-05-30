@@ -2,7 +2,6 @@ package br.com.katsilis.mercadolance.controller;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateTransactionDto;
 import br.com.katsilis.mercadolance.dto.response.TransactionResponseDto;
-import br.com.katsilis.mercadolance.model.Transaction;
 import br.com.katsilis.mercadolance.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

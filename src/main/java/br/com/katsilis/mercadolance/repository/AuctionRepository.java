@@ -1,7 +1,7 @@
 package br.com.katsilis.mercadolance.repository;
 
 import br.com.katsilis.mercadolance.enums.AuctionStatus;
-import br.com.katsilis.mercadolance.model.Auction;
+import br.com.katsilis.mercadolance.entity.Auction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
