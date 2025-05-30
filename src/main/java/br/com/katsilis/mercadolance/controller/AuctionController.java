@@ -32,8 +32,9 @@ public class AuctionController {
     @GetMapping("/search")
     public ResponseEntity<Page<AuctionResponseDto>> getAuctions(@RequestParam(required = false) AuctionStatus status,
                                                                 @RequestParam(required = false) String productName,
+                                                                @RequestParam(required = false) Long creatorId,
                                                                 @PageableDefault(sort = "title", size = 20) Pageable pageable) {
-        return ResponseEntity.ok(auctionService.getAuctions(status, productName, pageable));
+        return ResponseEntity.ok(auctionService.getAuctions(status, productName, creatorId, pageable));
     }
 
     @GetMapping("/status")

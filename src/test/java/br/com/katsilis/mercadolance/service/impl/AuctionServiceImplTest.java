@@ -89,7 +89,7 @@ class AuctionServiceImplTest {
         when(auctionRepository.findByStatusAndProduct_NameContainingIgnoreCase(any(), any(), eq(pageable)))
             .thenReturn(Page.empty());
 
-        Page<AuctionResponseDto> result = auctionService.getAuctions(AuctionStatus.ACTIVE, "Product 1", pageable);
+        Page<AuctionResponseDto> result = auctionService.getAuctions(AuctionStatus.ACTIVE, "Product 1", null, pageable);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -158,7 +158,7 @@ class AuctionServiceImplTest {
 
         auctionService.delete(1L);
 
-        verify(bidRepository, times(1)).deleteByAuctionId(1L);
+        verify(bidRepository, times(1)).findByAuction_Id(1L);
         verify(auctionRepository, times(1)).delete(mockAuction);
     }
 
