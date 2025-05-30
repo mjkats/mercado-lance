@@ -156,7 +156,10 @@ public class AuctionServiceImpl implements AuctionService {
         log.info("Processing auction creation: {}", auction);
 
         if (auction.getEndTime().isBefore(LocalDateTime.now()))
-            throw new AuctionIllegalArgumentException("Auction end time needs to be after current time");
+            throw new AuctionIllegalArgumentException(
+                "Auction end time needs to be after current time",
+                "A data de término está inválida"
+            );
 
         try {
             Product product = productService.findOriginalById(auction.getProductId());
@@ -243,7 +246,10 @@ public class AuctionServiceImpl implements AuctionService {
             }
 
             if (!hasUpdate)
-                throw new AuctionIllegalArgumentException("There are no updates on the request for auction id " + id);
+                throw new AuctionIllegalArgumentException(
+                    "There are no updates on the request for auction id " + id,
+                    "Não existem modificações no leilão"
+                );
 
             existing.setUpdatedAt(LocalDateTime.now());
             auctionRepository.save(existing);
