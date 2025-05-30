@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public Page<AuctionResponseDto> getAuctions(AuctionStatus status, String productName, Pageable pageable) {
+    public Page<AuctionResponseDto> getAuctions(AuctionStatus status, String productName, Long userId, Pageable pageable) {
         log.info("Called getAuctions with status={} and productName={}", status, productName);
 
         try {
@@ -62,6 +63,12 @@ public class AuctionServiceImpl implements AuctionService {
 
             if (productName != null && status != null) {
                 result = auctionRepository.findByStatusAndProduct_NameContainingIgnoreCase(status, productName, pageable)
+                    .map(this::auctionToResponseDto);
+            } else if (userId != null && status != null) {
+                result = auctionRepository.findByStatusAndCreatedBy_Id(status, userId, pageable)
+                    .map(this::auctionToResponseDto);
+            } else if (userId != null) {
+                result = auctionRepository.findByCreatedBy_Id(userId, pageable)
                     .map(this::auctionToResponseDto);
             } else if (productName != null) {
                 result = auctionRepository.findByProduct_NameContainingIgnoreCase(productName, pageable)
@@ -186,6 +193,7 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         log.info("Called delete with id={}", id);
 
@@ -193,8 +201,8 @@ public class AuctionServiceImpl implements AuctionService {
             Auction auction = auctionRepository.findById(id)
                 .orElseThrow(() -> new AuctionNotFoundException("Auction with id " + id + " not found"));
 
-            bidRepository.deleteByAuctionId(id);
-            log.info("Deleted bids for auction with id {}", id);
+            if (!bidRepository.findByAuction_Id(id).isEmpty())
+                bidRepository.deleteByAuctionId(id);
 
             auctionRepository.delete(auction);
             log.info("Finished delete. Auction with id {} deleted", id);

@@ -14,7 +14,7 @@ import java.util.List;
 public interface AuctionService {
 
     List<AuctionResponseDto> findAll();
-    Page<AuctionResponseDto> getAuctions(AuctionStatus status, String productName, Pageable pageable);
+    Page<AuctionResponseDto> getAuctions(AuctionStatus status, String productName, Long creatorId, Pageable pageable);
     List<AuctionBidResponseDto> findByStatus(AuctionStatus status);
     AuctionBidResponseDto findById(Long id);
     AuctionResponseDto findByIdAndStatus(Long id, AuctionStatus status);
