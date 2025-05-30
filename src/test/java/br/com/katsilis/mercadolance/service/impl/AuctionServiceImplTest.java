@@ -151,18 +151,25 @@ class AuctionServiceImplTest {
 
     @Test
     void testDeleteAuction() {
-        when(auctionRepository.existsById(1L)).thenReturn(true);
+        Auction mockAuction = new Auction();
+        mockAuction.setId(1L);
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(mockAuction));
 
         auctionService.delete(1L);
 
-        verify(auctionRepository, times(1)).deleteById(1L);
+        verify(bidRepository, times(1)).deleteByAuctionId(1L);
+        verify(auctionRepository, times(1)).delete(mockAuction);
     }
 
     @Test
     void testDeleteAuctionNotFound() {
-        when(auctionRepository.existsById(1L)).thenReturn(false);
+        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(AuctionNotFoundException.class, () -> auctionService.delete(1L));
+
+        verify(bidRepository, never()).deleteByAuctionId(anyLong());
+        verify(auctionRepository, never()).delete(any(Auction.class));
     }
 
     @Test
