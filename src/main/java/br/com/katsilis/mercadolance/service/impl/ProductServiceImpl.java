@@ -4,7 +4,7 @@ import br.com.katsilis.mercadolance.dto.creation.CreateProductDto;
 import br.com.katsilis.mercadolance.dto.response.ProductResponseDto;
 import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.exception.notfound.ProductNotFoundException;
-import br.com.katsilis.mercadolance.model.Product;
+import br.com.katsilis.mercadolance.entity.Product;
 import br.com.katsilis.mercadolance.repository.ProductRepository;
 import br.com.katsilis.mercadolance.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -71,13 +71,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void create(CreateProductDto product) {
+    public Long create(CreateProductDto product) {
         log.info("Creating new product with data: {}", product);
 
         try {
             Product newProduct = Product.builder().name(product.getName()).build();
-            productRepository.save(newProduct);
+            Product savedProduct = productRepository.save(newProduct);
             log.info("Successfully created product: {}", newProduct);
+            return savedProduct.getId();
         } catch (Exception e) {
             throw new DatabaseException("Error while creating product", e);
         }

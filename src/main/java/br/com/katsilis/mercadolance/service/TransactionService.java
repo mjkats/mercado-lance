@@ -2,7 +2,7 @@ package br.com.katsilis.mercadolance.service;
 
 import br.com.katsilis.mercadolance.dto.creation.CreateTransactionDto;
 import br.com.katsilis.mercadolance.dto.response.TransactionResponseDto;
-import br.com.katsilis.mercadolance.model.Transaction;
+import br.com.katsilis.mercadolance.entity.Transaction;
 
 import java.util.List;
 

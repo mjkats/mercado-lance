@@ -3,7 +3,7 @@ package br.com.katsilis.mercadolance.service;
 import br.com.katsilis.mercadolance.dto.creation.CreateUserDto;
 import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateUserDto;
-import br.com.katsilis.mercadolance.model.User;
+import br.com.katsilis.mercadolance.entity.User;
 
 import java.util.List;
 

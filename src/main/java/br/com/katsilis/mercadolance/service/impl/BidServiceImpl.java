@@ -9,9 +9,9 @@ import br.com.katsilis.mercadolance.exception.*;
 import br.com.katsilis.mercadolance.exception.illegalargument.BidIllegalArgumentException;
 import br.com.katsilis.mercadolance.exception.notfound.BidNotFoundException;
 import br.com.katsilis.mercadolance.exception.notfound.RedisCacheMissException;
-import br.com.katsilis.mercadolance.model.Auction;
-import br.com.katsilis.mercadolance.model.Bid;
-import br.com.katsilis.mercadolance.model.User;
+import br.com.katsilis.mercadolance.entity.Auction;
+import br.com.katsilis.mercadolance.entity.Bid;
+import br.com.katsilis.mercadolance.entity.User;
 import br.com.katsilis.mercadolance.repository.BidRepository;
 import br.com.katsilis.mercadolance.service.AuctionService;
 import br.com.katsilis.mercadolance.service.BidService;
@@ -204,10 +204,16 @@ public class BidServiceImpl implements BidService {
         Auction auction = auctionService.findOriginalByIdAndStatus(bid.getAuctionId(), AuctionStatus.ACTIVE);
 
         if (auction.getCreatedBy().getId().equals(bid.getUserId()))
-            throw new BidIllegalArgumentException("User " + bid.getUserId() + " cannot bid on his own auction");
+            throw new BidIllegalArgumentException(
+                "User " + bid.getUserId() + " cannot bid on his own auction",
+                "Você não pode efetuar um lance no próprio leilão"
+            );
 
         if (auction.getStartingPrice() >= bid.getAmount())
-            throw new BidIllegalArgumentException("User's " + bid.getUserId() + " bid must be higher than the starting price of the auction");
+            throw new BidIllegalArgumentException(
+                "User's " + bid.getUserId() + " bid must be higher than the starting price of the auction",
+                "O lance precisa ser maior que o preço inicial do leilão"
+            );
 
         List<Bid> auctionBids;
         try {
@@ -222,11 +228,17 @@ public class BidServiceImpl implements BidService {
                 .orElseThrow(() -> new BidNotFoundException("Auction " + auction.getId() + " has no bids yet"));
 
             if (highestBid.getUser().getId().equals(bid.getUserId())) {
-                throw new BidIllegalArgumentException("User " + bid.getUserId() + " already has the highest bid placed");
+                throw new BidIllegalArgumentException(
+                    "User " + bid.getUserId() + " already has the highest bid placed",
+                    "O maior lance deste leilão já é o seu"
+                );
             }
 
             if (highestBid.getAmount() >= bid.getAmount()) {
-                throw new BidIllegalArgumentException("User's " + bid.getUserId() + " bid must be higher than the current highest bid");
+                throw new BidIllegalArgumentException(
+                    "User's " + bid.getUserId() + " bid must be higher than the current highest bid",
+                    "O lance precisa ter valor superior ao maior lance atual"
+                );
             }
         }
 

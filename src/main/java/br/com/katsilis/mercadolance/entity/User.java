@@ -1,4 +1,4 @@
-package br.com.katsilis.mercadolance.model;
+package br.com.katsilis.mercadolance.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

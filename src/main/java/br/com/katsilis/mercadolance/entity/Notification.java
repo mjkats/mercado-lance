@@ -1,4 +1,4 @@
-package br.com.katsilis.mercadolance.model;
+package br.com.katsilis.mercadolance.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,28 +11,24 @@ import java.time.LocalDateTime;
 @Setter
 @EqualsAndHashCode
 @ToString
-@Entity
 @Builder
-public class Transaction {
+@Entity
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bid_id", nullable = false)
-    private Bid winningBid;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User buyer;
+    private User user;
 
     @Column(nullable = false)
-    private double amount;
+    private String message;
 
     @Column(nullable = false)
-    private LocalDateTime transactionDate;
+    private LocalDateTime sentAt;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private boolean read;
 }

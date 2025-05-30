@@ -4,7 +4,7 @@ import br.com.katsilis.mercadolance.dto.creation.CreateUserDto;
 import br.com.katsilis.mercadolance.dto.response.UserResponseDto;
 import br.com.katsilis.mercadolance.dto.update.UpdateUserDto;
 import br.com.katsilis.mercadolance.exception.notfound.UserNotFoundException;
-import br.com.katsilis.mercadolance.model.User;
+import br.com.katsilis.mercadolance.entity.User;
 import br.com.katsilis.mercadolance.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

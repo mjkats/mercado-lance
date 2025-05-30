@@ -4,7 +4,7 @@ import br.com.katsilis.mercadolance.dto.creation.CreateProductDto;
 import br.com.katsilis.mercadolance.dto.response.ProductResponseDto;
 import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.exception.notfound.ProductNotFoundException;
-import br.com.katsilis.mercadolance.model.Product;
+import br.com.katsilis.mercadolance.entity.Product;
 import br.com.katsilis.mercadolance.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,9 +72,10 @@ class ProductServiceImplTest {
 
         when(productRepository.save(any(Product.class))).thenReturn(newProduct);
 
-        productService.create(createProductDto);
+        Long productId = productService.create(createProductDto);
 
         verify(productRepository, times(1)).save(any(Product.class));
+        assertEquals(1L, productId);
     }
 
     @Test
