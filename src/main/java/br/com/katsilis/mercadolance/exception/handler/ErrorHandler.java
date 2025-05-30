@@ -4,6 +4,7 @@ import br.com.katsilis.mercadolance.exception.BidWaitPeriodException;
 import br.com.katsilis.mercadolance.exception.DatabaseException;
 import br.com.katsilis.mercadolance.exception.JsonParsingException;
 import br.com.katsilis.mercadolance.exception.ThreadException;
+import br.com.katsilis.mercadolance.exception.illegalargument.AuctionIllegalArgumentException;
 import br.com.katsilis.mercadolance.exception.illegalargument.BidIllegalArgumentException;
 import br.com.katsilis.mercadolance.exception.model.ErrorResponse;
 import br.com.katsilis.mercadolance.exception.notfound.generic.GenericNotFoundException;
@@ -67,6 +68,18 @@ public class ErrorHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(AuctionIllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(AuctionIllegalArgumentException e) {
+        log.error("An illegal auction exception happened: {}", e.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            e.getUserMessage(),
+            INTERNAL_ERROR_MESSAGE
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(BidIllegalArgumentException.class)
